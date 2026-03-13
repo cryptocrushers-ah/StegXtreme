@@ -1,10 +1,22 @@
 import numpy as np
 import pytest
 from core.compute import backend
+from core.compute import carriers, dwt
 
 RNG = np.random.default_rng(42)
 SAMPLE_ARR = RNG.random((64, 64)).astype(np.float32)
 
+def test_dwt_forward_matches_backend():
+    LL1, LH1, HL1, HH1 = backend.dwt2(SAMPLE_ARR)
+    LL2, LH2, HL2, HH2 = dwt.forward(SAMPLE_ARR)
+    np.testing.assert_array_equal(LL1, LL2)
+    np.testing.assert_array_equal(LH1, LH2)
+
+def test_carriers_get_matches_backend():
+    a = backend.make_carriers(10, 256, seed=42)
+    b = carriers.get_carriers(10, 256, seed=42)
+    np.testing.assert_array_equal(a, b)
+    
 def test_dwt_roundtrip():
     LL, LH, HL, HH = backend.dwt2(SAMPLE_ARR)
     assert LL.shape == (32, 32)
