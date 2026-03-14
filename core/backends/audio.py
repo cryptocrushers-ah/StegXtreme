@@ -1,7 +1,7 @@
-import numpy as np
-import soundfile as sf
-from core.crypto.kdf import derive_key
-from core.crypto.cipher import aes_encrypt, aes_decrypt
+import numpy as np  # type: ignore
+import soundfile as sf  # type: ignore
+from core.crypto.kdf import derive_key  # type: ignore
+from core.crypto.cipher import aes_encrypt, aes_decrypt  # type: ignore
 
 class AudioBackend:
     @classmethod

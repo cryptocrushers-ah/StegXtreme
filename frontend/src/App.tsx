@@ -2,9 +2,10 @@ import { useState } from 'react';
 import EmbedTab from './components/EmbedTab';
 import ExtractTab from './components/ExtractTab';
 import AnalyzeTab from './components/AnalyzeTab';
+import VisualiseTab from './components/VisualiseTab';
 import './App.css';
 
-type Tab = 'embed' | 'extract' | 'analyze';
+type Tab = 'embed' | 'extract' | 'analyze' | 'visualise';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('embed');
@@ -35,12 +36,20 @@ function App() {
         >
           🔍 Analyse
         </button>
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'visualise' ? 'active' : ''}`}
+          onClick={() => setActiveTab('visualise')}
+        >
+          🎨 Visualise
+        </button>
       </div>
 
       <div className="glass-panel">
         {activeTab === 'embed'   && <EmbedTab />}
         {activeTab === 'extract' && <ExtractTab />}
         {activeTab === 'analyze' && <AnalyzeTab />}
+        {activeTab === 'visualise' && <VisualiseTab />}
       </div>
     </div>
   );
