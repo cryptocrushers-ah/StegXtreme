@@ -1,22 +1,20 @@
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from backend.websockets.training import training_ws_endpoint
 
 app = FastAPI(title="StegXtreme")
 
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
-    allow_methods=["*"], allow_headers=["*"])
-
-from backend.api import embed, extract, analyze
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
-app.include_router(embed.router)
-app.include_router(extract.router)
-app.include_router(analyze.router)
-
+@app.websocket("/ws/training/{run_id}")
+async def training_websocket(websocket: WebSocket, run_id: str):
+    await training_ws_endpoint(websocket, run_id)
