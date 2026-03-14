@@ -1,38 +1,50 @@
 import { useState } from 'react';
 import EmbedTab from './components/EmbedTab';
 import ExtractTab from './components/ExtractTab';
-import './App.css'; // Might be unneeded if index.css is used but keeping just in case
+import AnalyzeTab from './components/AnalyzeTab';
+import './App.css';
+
+type Tab = 'embed' | 'extract' | 'analyze';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'embed' | 'extract'>('embed');
+  const [activeTab, setActiveTab] = useState<Tab>('embed');
 
   return (
     <div>
       <h1>StegXtreme</h1>
-      
+
       <div className="tabs">
-        <button 
+        <button
           type="button"
           className={`tab-btn ${activeTab === 'embed' ? 'active' : ''}`}
           onClick={() => setActiveTab('embed')}
         >
           Embed Payload
         </button>
-        <button 
+        <button
           type="button"
           className={`tab-btn ${activeTab === 'extract' ? 'active' : ''}`}
           onClick={() => setActiveTab('extract')}
         >
           Extract Payload
         </button>
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'analyze' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analyze')}
+        >
+          🔍 Analyse
+        </button>
       </div>
 
       <div className="glass-panel">
-        {activeTab === 'embed' && <EmbedTab />}
+        {activeTab === 'embed'   && <EmbedTab />}
         {activeTab === 'extract' && <ExtractTab />}
+        {activeTab === 'analyze' && <AnalyzeTab />}
       </div>
     </div>
   );
 }
 
 export default App;
+

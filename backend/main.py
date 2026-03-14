@@ -10,7 +10,7 @@ app = FastAPI(title="StegXtreme")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
     allow_methods=["*"], allow_headers=["*"])
 
-from backend.api import embed, extract
+from backend.api import embed, extract, analyze
 
 @app.get("/health")
 async def health():
@@ -18,4 +18,5 @@ async def health():
 
 app.include_router(embed.router)
 app.include_router(extract.router)
+app.include_router(analyze.router)
 
