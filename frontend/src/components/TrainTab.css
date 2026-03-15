@@ -44,6 +44,10 @@
   padding: 0.8rem 2rem !important;
   font-size: 1rem !important;
   letter-spacing: 0.025em;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: none !important;
+  font-weight: 700 !important;
 }
 
 .train-btn.training {

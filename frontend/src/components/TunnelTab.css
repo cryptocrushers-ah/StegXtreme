@@ -53,6 +53,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: none !important;
+  font-weight: 700 !important;
 }
 
 .send-btn.sending {

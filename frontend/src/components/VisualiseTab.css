@@ -137,6 +137,22 @@
   padding: 2rem;
 }
 
+.export-btn, .change-btn {
+  width: auto !important;
+  margin-top: 0 !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem 1rem !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.export-btn:hover, .change-btn:hover {
+  background: #f4f4f5 !important;
+  transform: translateY(-1px);
+}
+
 .result-label {
   color: #94a3b8;
   font-size: 0.75rem;
