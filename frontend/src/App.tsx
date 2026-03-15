@@ -21,18 +21,27 @@ function App() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1>StegXtreme</h1>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        position: 'relative', 
+        marginBottom: '2rem',
+        marginTop: '1rem'
+      }}>
+        <h1 style={{ margin: 0 }}>StegXtreme</h1>
         <button 
           onClick={logout} 
+          className="tab-btn" 
           style={{ 
-            padding: '0.4rem 0.8rem', 
-            fontSize: '0.75rem', 
-            background: 'rgba(239, 68, 68, 0.1)', 
-            border: '1px solid rgba(239, 68, 68, 0.2)', 
-            color: '#ef4444', 
-            borderRadius: '6px' 
+            position: 'absolute', 
+            right: 0,
+            borderColor: 'rgba(239, 68, 68, 0.2)',
+            color: '#ef4444',
+            background: 'rgba(239, 68, 68, 0.05)'
           }}
+          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+          onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)'}
         >
           Logout
         </button>

@@ -2,7 +2,7 @@ import { useAuthStore } from '../store/authStore';
 
 const BASE_URL = 'http://localhost:8000';
 
-export async function apiRequest(endpoint: string, options: RequestInit = {}) {
+export async function apiRequest(endpoint: string, options: RequestInit = {}, returnRaw: boolean = false) {
   const { token, logout } = useAuthStore.getState();
 
   const headers = new Headers(options.headers || {});
@@ -23,6 +23,10 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.detail || 'An unexpected error occurred');
+  }
+
+  if (returnRaw) {
+    return response;
   }
 
   return response.json();

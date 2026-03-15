@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 import os
 
 # Configuration
@@ -24,6 +24,7 @@ class Token(BaseModel):
     token_type: str
 
 class User(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     username: str
     email: Optional[str] = None
 
@@ -72,7 +73,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = FAKE_USERS_DB.get(username)
     if user is None:
         raise credentials_exception
-    return User(username=user["username"], email=user["email"])
+    return User(username=str(user["username"]), email=str(user["email"]))
 
 # --- Endpoints ---
 

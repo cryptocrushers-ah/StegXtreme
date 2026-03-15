@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from backend.utils.validation import validate_file
 import shutil
 import os
 import uuid
@@ -14,6 +15,7 @@ async def extract_data(
     file: UploadFile = File(...),
     password: str = Form(...)
 ):
+    await validate_file(file)
     try:
         # Save uploaded file
         ext = file.filename.split('.')[-1]

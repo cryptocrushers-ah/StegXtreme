@@ -4,6 +4,7 @@ import shutil
 import os
 import uuid
 from core.backends.router import get_backend
+from backend.utils.validation import validate_file
 
 router = APIRouter()
 
@@ -17,6 +18,7 @@ async def embed_data(
     password: str = Form(...),
     algorithm: str = Form("default")
 ):
+    await validate_file(file)
     try:
         # Save uploaded file
         ext = file.filename.split('.')[-1]

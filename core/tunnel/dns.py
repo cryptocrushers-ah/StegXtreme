@@ -11,7 +11,7 @@ class DNSTunnel:
     @staticmethod
     def send(payload_bytes: bytes, target_ip: str, session_id: str):
         # Base32 is safer for DNS labels (case insensitive, alphanumeric)
-        encoded = base64.b32encode(payload_bytes).decode('utf-8').rstrip('=')
+        encoded: str = base64.b32encode(payload_bytes).decode('utf-8').rstrip('=')
         
         # Max label length is 63 chars.
         # We'll use a structure: <chunk>.<session_id>.tunnel.com

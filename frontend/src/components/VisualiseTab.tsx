@@ -157,8 +157,13 @@ export default function VisualiseTab() {
         </div>
       )}
 
-      <button type="submit" disabled={loading} style={{ marginTop: '1.5rem' }}>
-        {loading ? 'Generating Plot…' : '🎨 Generate Visualisation'}
+      <button type="submit" disabled={loading} style={{ marginTop: '1.5rem', position: 'relative' }}>
+        {loading ? (
+          <div className="button-loading">
+            <div className="spinner"></div>
+            <span>Generating Plot...</span>
+          </div>
+        ) : '🎨 Generate Visualisation'}
       </button>
 
       {error && <div className="error-message" style={{ marginTop: '1rem' }}>{error}</div>}

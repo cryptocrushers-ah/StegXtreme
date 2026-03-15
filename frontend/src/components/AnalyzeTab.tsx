@@ -245,8 +245,13 @@ export default function AnalyzeTab() {
         )}
       </div>
 
-      <button type="submit" disabled={loading} style={{ marginTop: '1rem' }}>
-        {loading ? 'Analysing…' : '🔍 Analyse for Steganography'}
+      <button type="submit" disabled={loading} style={{ marginTop: '1rem', position: 'relative' }}>
+        {loading ? (
+          <div className="button-loading">
+            <div className="spinner"></div>
+            <span>Analysing...</span>
+          </div>
+        ) : '🔍 Analyse for Steganography'}
       </button>
 
       {result && (
