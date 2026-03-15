@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { apiRequest } from '../utils/api';
 
 interface FeatureScore {
   label: string;
@@ -179,15 +180,10 @@ export default function AnalyzeTab() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:8000/api/analyze', {
+      const data: AnalysisResult = await apiRequest('/api/analyze', {
         method: 'POST',
         body: formData,
       });
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || 'Analysis failed');
-      }
-      const data: AnalysisResult = await response.json();
       setResult(data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unknown error');

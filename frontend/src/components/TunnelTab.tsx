@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './TunnelTab.css';
+import { apiRequest } from '../utils/api';
 
 interface TrafficLog {
   direction: 'IN' | 'OUT';
@@ -44,7 +45,7 @@ const TunnelTab: React.FC = () => {
     
     setStatus('sending');
     try {
-      const response = await fetch('http://localhost:8000/api/tunnel/send', {
+      await apiRequest('/api/tunnel/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,8 +55,6 @@ const TunnelTab: React.FC = () => {
           session_id: sessionId
         }),
       });
-      
-      if (!response.ok) throw new Error('Send failed');
       setPayload('');
       setStatus('idle');
     } catch (err) {

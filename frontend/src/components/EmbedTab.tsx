@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { apiRequest } from '../utils/api';
 
 export default function EmbedTab() {
   const [file, setFile] = useState<File | null>(null);
@@ -47,8 +48,11 @@ export default function EmbedTab() {
     formData.append('algorithm', algorithm);
 
     try {
-      const response = await fetch('http://localhost:8000/api/embed', {
+      const response = await fetch(`http://localhost:8000/api/embed`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth-storage') || '{}').state?.token || ''}`
+        },
         body: formData,
       });
 
