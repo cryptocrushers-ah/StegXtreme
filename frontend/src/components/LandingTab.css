@@ -1,6 +1,8 @@
 .landing-tab-wrapper {
-  margin: -2rem; /* Negate the padding of the glass-panel wrapper */
+  margin: 0;
+  padding: 0;
   overflow: hidden;
+  width: 100%;
 }
 
 .hero {

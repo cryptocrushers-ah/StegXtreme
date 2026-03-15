@@ -40,8 +40,7 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
           Multi-domain steganography combining GAN models, spread-spectrum embedding, cryptographic PFS, and covert network tunneling — across image, video, and audio.
         </p>
         <div className="btn-group fade-up in d3">
-          <button onClick={() => onNavigate('embed')} className="btn btn-solid">See how it works</button>
-          <button onClick={() => onNavigate('train')} className="btn btn-ghost">Explore Neural Training →</button>
+          <button onClick={() => onNavigate('embed')} className="btn btn-solid">Explore</button>
         </div>
         
         <div className="hero-stats fade-up in d4">
