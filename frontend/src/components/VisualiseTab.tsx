@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react';
 import { apiRequest } from '../utils/api';
 import './VisualiseTab.css';
 
