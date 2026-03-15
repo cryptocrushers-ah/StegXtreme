@@ -46,9 +46,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
   return (
     <div className="login-overlay" onClick={onClose}>
       <div className="login-card glass-panel" onClick={(e) => e.stopPropagation()}>
+        {onClose && <button className="close-btn" onClick={onClose}>&times;</button>}
         <div className="modal-header">
           <h2>StegXtreme Access</h2>
-          {onClose && <button className="close-btn" onClick={onClose}>&times;</button>}
         </div>
         <p className="subtitle">Please authenticate to continue</p>
         
