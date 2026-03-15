@@ -1,0 +1,97 @@
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request, HTTPException
+from pydantic import BaseModel
+from typing import Dict, List, Optional
+import json
+import asyncio
+
+from core.tunnel.dns import DNSTunnel
+from core.tunnel.http import HTTPTunnel
+
+router = APIRouter(prefix="/api/tunnel", tags=["tunnel"])
+
+# Simple in-memory WebSocket manager for traffic logs
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, List[WebSocket]] = {}
+
+    async def connect(self, websocket: WebSocket, session_id: str):
+        await websocket.accept()
+        if session_id not in self.active_connections:
+            self.active_connections[session_id] = []
+        self.active_connections[session_id].append(websocket)
+
+    def disconnect(self, websocket: WebSocket, session_id: str):
+        if session_id in self.active_connections:
+            self.active_connections[session_id].remove(websocket)
+
+    async def broadcast(self, session_id: str, message: dict):
+        if session_id in self.active_connections:
+            msg_str = json.dumps(message)
+            for connection in self.active_connections[session_id]:
+                await connection.send_text(msg_str)
+
+manager = ConnectionManager()
+
+class TunnelSendRequest(BaseModel):
+    protocol: str # "dns" or "http"
+    payload: str
+    target: str # IP or URL
+    session_id: str
+
+@router.post("/send")
+async def tunnel_send(req: TunnelSendRequest):
+    payload_bytes = req.payload.encode('utf-8')
+    
+    # Log the outgoing packet
+    await manager.broadcast(req.session_id, {
+        "direction": "OUT",
+        "protocol": req.protocol.upper(),
+        "payload": req.payload,
+        "target": req.target,
+        "timestamp": asyncio.get_event_loop().time()
+    })
+
+    try:
+        if req.protocol.lower() == "dns":
+            DNSTunnel.send(payload_bytes, req.target, req.session_id)
+        elif req.protocol.lower() == "http":
+            HTTPTunnel.send(payload_bytes, req.target)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported protocol")
+            
+        return {"status": "sent"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/receive")
+async def tunnel_receive(request: Request):
+    # This endpoint receives incoming HTTP tunnel requests
+    headers = dict(request.headers)
+    payload_bytes = HTTPTunnel.receive_from_headers(headers)
+    
+    if payload_bytes:
+        payload_str = payload_bytes.decode('utf-8', errors='ignore')
+        # In a real scenario, we'd need to know the session_id from headers too.
+        # For simplicity, we'll use a "broadcast_all" or specific header.
+        session_id = headers.get("X-Session-ID", "global")
+        
+        await manager.broadcast(session_id, {
+            "direction": "IN",
+            "protocol": "HTTP",
+            "payload": payload_str,
+            "timestamp": asyncio.get_event_loop().time()
+        })
+        return {"status": "received", "payload": payload_str}
+    
+    return {"status": "no_payload"}
+
+# WebSocket endpoint for live traffic
+@router.websocket("/ws/traffic/{session_id}")
+async def traffic_ws(websocket: WebSocket, session_id: str):
+    await manager.connect(websocket, session_id)
+    try:
+        while True:
+            # Just keep connection alive
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, session_id)
