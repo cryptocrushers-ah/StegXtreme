@@ -6,30 +6,48 @@ import ExtractTab from './components/ExtractTab';
 import AnalyzeTab from './components/AnalyzeTab';
 import VisualiseTab from './components/VisualiseTab';
 import TunnelTab from './components/TunnelTab';
-import TrainTab from './components/TrainTab';
+import LandingTab from './components/LandingTab';
+import ModelStats from './components/ModelStats';
 import './App.css';
 
-type Tab = 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel' | 'train';
+type Tab = 'home' | 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('embed');
+  const [showLogin, setShowLogin] = useState(false);
   const { isAuthenticated, logout } = useAuthStore();
 
+  const handleLogout = () => {
+    logout();
+    // After logout, the App component will re-render and show the public cover
+    // No need to set activeTab here as the entire view changes
+  };
+
+  // Public Cover View (Landing Page)
   if (!isAuthenticated) {
-    return <LoginModal />;
+    return (
+      <div className="cover-page">
+        <LandingTab onNavigate={() => setShowLogin(true)} />
+        {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      </div>
+    );
   }
 
+  // Private Dashboard View (Forensic Suite)
   return (
-    <div>
+    <div className="dashboard-container">
       <header className="app-header">
-        <h1>StegXtreme</h1>
+        <h1 onClick={() => setActiveTab('embed')} style={{cursor: 'pointer'}}>StegXtreme</h1>
         <p className="app-subtitle">Advanced Steganography & Detection Suite</p>
-        <button 
-          onClick={logout} 
-          className="logout-btn"
-        >
-          Logout
-        </button>
+        <div className="header-actions">
+          <ModelStats />
+          <button 
+            onClick={handleLogout} 
+            className="logout-btn"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <nav className="tabs">
@@ -68,13 +86,6 @@ function App() {
         >
           <span className="icon">🚀</span> Tunnel
         </button>
-        <button
-          type="button"
-          className={`tab-btn ${activeTab === 'train' ? 'active' : ''}`}
-          onClick={() => setActiveTab('train')}
-        >
-          <span className="icon">🧠</span> Train
-        </button>
       </nav>
 
       <div className="glass-panel">
@@ -83,7 +94,6 @@ function App() {
         {activeTab === 'analyze' && <AnalyzeTab />}
         {activeTab === 'visualise' && <VisualiseTab />}
         {activeTab === 'tunnel' && <TunnelTab />}
-        {activeTab === 'train' && <TrainTab />}
       </div>
     </div>
   );

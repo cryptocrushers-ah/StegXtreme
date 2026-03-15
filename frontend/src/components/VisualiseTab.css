@@ -26,38 +26,38 @@
 }
 
 .mode-card {
-  background: rgba(30, 41, 59, 0.3);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1.25rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .mode-card:hover {
-  background: rgba(30, 41, 59, 0.5);
-  transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .mode-card.active {
-  background: rgba(56, 189, 248, 0.1);
-  border-color: #38bdf8;
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+  background: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
 .mode-icon {
-  font-size: 2rem;
-  background: rgba(15, 23, 42, 0.5);
-  width: 50px;
-  height: 50px;
+  font-size: 1.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .mode-info {
@@ -72,15 +72,19 @@
 }
 
 .mode-info span {
-  color: #64748b;
+  color: #a1a1aa;
   font-size: 0.8rem;
+}
+.mode-card.active .mode-info strong,
+.mode-card.active .mode-info span {
+  color: #000000;
 }
 
 .config-panel {
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(10, 10, 10, 0.6);
   padding: 1.5rem;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .config-header {
@@ -96,9 +100,9 @@
 }
 
 .config-value {
-  color: #38bdf8;
+  color: #ffffff;
   font-weight: 700;
-  font-family: 'Fira Code', monospace;
+  font-family: -apple-system, blinkmacsystemfont, sans-serif;
 }
 
 .premium-slider {
@@ -115,10 +119,10 @@
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  background: #38bdf8;
+  background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
   transition: transform 0.2s;
 }
 
@@ -127,10 +131,26 @@
 }
 
 .visualise-result {
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 24px;
+  background: rgba(10, 10, 10, 0.8);
+  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
+}
+
+.export-btn, .change-btn {
+  width: auto !important;
+  margin-top: 0 !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem 1rem !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.export-btn:hover, .change-btn:hover {
+  background: #f4f4f5 !important;
+  transform: translateY(-1px);
 }
 
 .result-label {

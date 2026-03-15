@@ -18,8 +18,8 @@
 }
 
 .results-container {
-  background: rgba(15, 23, 42, 0.4);
-  border-radius: 24px;
+  background: rgba(10, 10, 10, 0.6);
+  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
 }
@@ -32,7 +32,7 @@
 }
 
 .result-label {
-  color: #94a3b8;
+  color: #a1a1aa;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -42,18 +42,21 @@
 .copy-btn {
   width: auto !important;
   margin-top: 0 !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: #ffffff !important;
+  color: #000000 !important;
   font-size: 0.8rem !important;
   padding: 0.5rem 1rem !important;
+  border: none !important;
+  font-weight: 600 !important;
 }
 
 .payload-display {
-  background: #020617;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   padding: 1.5rem;
-  color: #38bdf8;
-  font-family: 'Fira Code', monospace;
+  color: #ffffff;
+  font-family: var(--sf-font);
   font-size: 0.9rem;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -69,4 +72,46 @@
   .dashboard-row {
     grid-template-columns: 1fr;
   }
+}
+
+.success-area {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.success-icon {
+  font-size: 1.5rem;
+}
+
+.success-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.success-info strong {
+  color: #34d399;
+  font-size: 0.95rem;
+}
+
+.success-info span {
+  color: #a1a1aa;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.download-feedback-btn {
+  width: auto !important;
+  margin-top: 0 !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  padding: 0.6rem 1.2rem !important;
+  border-radius: 8px !important;
 }

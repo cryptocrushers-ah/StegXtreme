@@ -9,7 +9,7 @@ export default function EmbedTab() {
   const [algorithm, setAlgorithm] = useState('default');
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{name: string, size: string} | null>(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,8 +38,13 @@ export default function EmbedTab() {
       setError('Please provide file, payload, and password.');
       return;
     }
+    if (file && file.size > 500 * 1024 * 1024) {
+      setError('File size exceeds the 500MB limit for neural processing.');
+      return;
+    }
+
     setError('');
-    setSuccess(false);
+    setSuccessData(null);
     setLoading(true);
 
     const formData = new FormData();
@@ -67,7 +72,10 @@ export default function EmbedTab() {
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
-        setSuccess(true);
+        setSuccessData({
+          name: `${baseName}_stego${ext}`,
+          size: (blob.size / (1024 * 1024)).toFixed(2) + ' MB'
+        });
         setFile(null);
         setPayload('');
         setPassword('');
@@ -105,7 +113,9 @@ export default function EmbedTab() {
         />
         {file ? (
           <div className="selected-file-info">
-            <span className="file-icon">📁</span>
+            <span className="file-icon">
+              {file.type.startsWith('image/') ? '🖼️' : file.type.startsWith('video/') ? '🎬' : file.type.startsWith('audio/') ? '🔊' : '📁'}
+            </span>
             <div className="details">
               <strong>{file.name}</strong>
               <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • Carrier Material</span>
@@ -115,8 +125,8 @@ export default function EmbedTab() {
         ) : (
           <div className="drop-prompt">
             <div className="pulse-icon">📥</div>
-            <p>Drop carrier file or <span>click to browse</span></p>
-            <span className="hint">Supports PNG, WAV, MP4, AVI</span>
+            <p>Drop a file here to <span>hide your message</span></p>
+            <span className="hint">Supports PNG, WAV, MP4, AVI (Max 500MB)</span>
           </div>
         )}
       </div>
@@ -172,7 +182,21 @@ export default function EmbedTab() {
         </button>
       </div>
 
-      {success && <div className="success-message">Payload successfully serialized and downloaded!</div>}
+      {successData && (
+        <div className="success-area animate-in">
+          <div className="success-icon">✅</div>
+          <div className="success-info">
+            <strong>Stego-Media Generated</strong>
+            <span>{successData.name} • {successData.size}</span>
+          </div>
+          <button className="download-feedback-btn" onClick={() => {
+            // Success data is just for display, file was already auto-clicked in handleSubmit
+            // But we can re-trigger if needed or just show status
+          }}>
+            Download Ready
+          </button>
+        </div>
+      )}
       {error && <div className="error-message">{error}</div>}
     </div>
   );

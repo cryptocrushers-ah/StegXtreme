@@ -17,6 +17,7 @@ const TunnelTab: React.FC = () => {
   const [sessionId] = useState(() => Math.random().toString(36).substring(7));
   const [logs, setLogs] = useState<TrafficLog[]>([]);
   const [status, setStatus] = useState<'idle' | 'sending' | 'error'>('idle');
+  const [error, setError] = useState('');
   
   const ws = useRef<WebSocket | null>(null);
 
@@ -42,6 +43,10 @@ const TunnelTab: React.FC = () => {
 
   const handleSend = async () => {
     if (!target || !payload) return;
+    if (payload.length > 50000) {
+      setError('Payload too large for secure tunneling (Max 50KB).');
+      return;
+    }
     
     setStatus('sending');
     try {
@@ -128,6 +133,7 @@ const TunnelTab: React.FC = () => {
               </>
             )}
           </button>
+          {error && <div className="error-message" style={{ marginTop: '1rem' }}>{error}</div>}
         </div>
 
         <div className="traffic-monitor glass-panel">
@@ -140,7 +146,7 @@ const TunnelTab: React.FC = () => {
             {logs.length === 0 ? (
               <div className="empty-terminal">
                 <span className="cursor">_</span>
-                <p>Awaiting incoming/outgoing traffic...</p>
+                <p>Enter target and message to <span>begin covert tunnel</span></p>
               </div>
             ) : (
               <div className="log-list">

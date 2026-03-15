@@ -1,11 +1,12 @@
 :root {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --sf-font: -apple-system, "SF Pro Display", "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--sf-font);
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: #f8fafc;
-  background-color: #020617;
+  color: #ffffff;
+  background-color: #000000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -19,23 +20,20 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(129, 140, 248, 0.15) 0%, transparent 40%),
-    #020617;
+  background: #000000;
   overflow-x: hidden;
 }
 
 h1 {
   font-size: 3.5rem;
   font-weight: 800;
-  letter-spacing: -0.025em;
-  background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+  letter-spacing: -0.04em;
+  background: linear-gradient(to bottom, #ffffff, #a1a1aa);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.25em;
-  filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.3));
+  filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.15));
 }
 
 #root {
@@ -46,57 +44,56 @@ h1 {
 }
 
 .glass-panel {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
   padding: 2.5rem;
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 20px 25px -5px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
 }
 
 .glass-panel:hover {
-  border-color: rgba(56, 189, 248, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 input, button, select, textarea {
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.8rem 1.2rem;
   font-size: 1rem;
   font-family: inherit;
-  background-color: rgba(30, 41, 59, 0.5);
-  color: white;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: rgba(255, 255, 255, 0.03);
+  color: #fafafa;
+  transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #38bdf8;
-  background-color: rgba(30, 41, 59, 0.8);
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
 button:not(.tab-btn) {
-  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-  color: white;
+  background: #ffffff;
+  color: #000000;
   border: none;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
   margin-top: 1.5rem;
 }
 
 button:not(.tab-btn):hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.5);
-  filter: brightness(1.1);
+  background: #f4f4f5;
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
 }
 
 button:not(.tab-btn):active {
@@ -104,8 +101,8 @@ button:not(.tab-btn):active {
 }
 
 button:disabled {
-  background: #1e293b;
-  color: #475569;
+  background: #18181b;
+  color: #52525b;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -117,11 +114,11 @@ button:disabled {
   gap: 0.75rem;
   margin-bottom: 2.5rem;
   justify-content: center;
-  padding: 0.5rem;
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(8px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
@@ -129,26 +126,26 @@ button:disabled {
 
 .tab-btn {
   background: transparent;
-  border: 1px solid transparent;
-  color: #94a3b8;
+  border: none;
+  color: #a1a1aa;
   padding: 0.6rem 1.4rem;
-  border-radius: 14px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   width: auto;
   margin-top: 0;
   font-weight: 500;
 }
 
 .tab-btn:hover {
-  color: #f8fafc;
-  background: rgba(255, 255, 255, 0.05);
+  color: #fafafa;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .tab-btn.active {
-  background: #f8fafc;
-  color: #0f172a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
 }
 
 .form-group {
@@ -166,19 +163,34 @@ button:disabled {
 
 .file-drop-area {
   border: 2px dashed rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 4rem 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   margin-bottom: 2rem;
-  background: rgba(30, 41, 59, 0.2);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .file-drop-area:hover, .file-drop-area.drag-over {
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.08);
-  transform: scale(1.01);
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
 }
 
 .success-message {
