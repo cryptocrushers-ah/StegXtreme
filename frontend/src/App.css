@@ -1,6 +1,24 @@
 .app-header {
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.header-left, .header-actions {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.header-actions {
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.header-center {
+  flex: 2;
   text-align: center;
 }
 
@@ -43,17 +61,48 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+  .header-center {
+    position: static; /* Remove absolute positioning on smaller screens */
+    transform: none;
+    left: auto;
+    text-align: center;
+    margin-bottom: 1rem; /* Add space below title */
+    width: 100%;
+    order: -1; /* Place it first in flex order */
+  }
+
+  .app-header {
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center;
+  }
+
+  .header-actions {
+    position: static; /* Remove absolute positioning */
+    transform: none;
+    top: auto;
+    right: auto;
+    flex-wrap: wrap; /* Allow items to wrap */
+    justify-content: center; /* Center actions */
+    gap: 0.75rem; /* Adjust gap for smaller screens */
+  }
+
+  .model-stats-badge {
+    margin-right: 0; /* Remove margin-right */
+    margin-bottom: 0.5rem; /* Add margin-bottom if wrapping */
+  }
 }
 
 .model-stats-badge {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 0.5rem 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 1.25rem;
+  padding: 0.4rem 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 50px;
-  margin-right: 1.5rem;
+  backdrop-filter: blur(10px);
 }
 
 .stat-group {
@@ -102,14 +151,6 @@
   text-transform: uppercase;
 }
 
-.header-actions {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-}
 
 .login-trigger-btn {
   width: auto !important;

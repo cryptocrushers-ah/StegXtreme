@@ -37,8 +37,11 @@ function App() {
   return (
     <div className="dashboard-container">
       <header className="app-header">
-        <h1 onClick={() => setActiveTab('embed')} style={{cursor: 'pointer'}}>StegXtreme</h1>
-        <p className="app-subtitle">Advanced Steganography & Detection Suite</p>
+        <div className="header-left"></div>
+        <div className="header-center">
+          <h1 onClick={() => setActiveTab('embed')} style={{cursor: 'pointer'}}>StegXtreme</h1>
+          <p className="app-subtitle">Advanced Steganography & Detection Suite</p>
+        </div>
         <div className="header-actions">
           <ModelStats />
           <button 
