@@ -11,15 +11,15 @@ class VideoFrameDataset(Dataset):
     
     def __init__(self, folder: str, frame_size=64, max_frames=1000):
         self.frames = []
-        folder = Path(folder)
+        folder_path = Path(folder)
         
-        for video_path in folder.glob("*.mp4"):
+        for video_path in folder_path.glob("*.mp4"):
             frames = self._extract_frames(
                 str(video_path), frame_size, max_frames
             )
             self.frames.extend(frames)
         
-        for video_path in folder.glob("*.avi"):
+        for video_path in folder_path.glob("*.avi"):
             frames = self._extract_frames(
                 str(video_path), frame_size, max_frames
             )
@@ -61,11 +61,11 @@ class ImageDataset(Dataset):
     
     def __init__(self, folder: str, patch_size=64):
         self.patches = []
-        folder       = Path(folder)
+        folder_path       = Path(folder)
         extensions   = ["*.jpg", "*.png", "*.jpeg", "*.bmp"]
 
         for ext in extensions:
-            for img_path in folder.glob(ext):
+            for img_path in folder_path.glob(ext):
                 patches = self._extract_patches(
                     str(img_path), patch_size
                 )
@@ -103,9 +103,9 @@ class AudioDataset(Dataset):
 
     def __init__(self, folder: str, patch_size=64):
         self.patches = []
-        folder       = Path(folder)
+        folder_path       = Path(folder)
 
-        for wav_path in folder.glob("*.wav"):
+        for wav_path in folder_path.glob("*.wav"):
             patches = self._extract_spectrogram_patches(
                 str(wav_path), patch_size
             )

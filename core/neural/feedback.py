@@ -3,6 +3,8 @@ import threading
 from numpy import rint
 import torch
 from core.neural.trainer import GANTrainer
+import os
+from core.neural.registry import ModelRegistry
 
 class FeedbackEngine:
     def __init__(self):
@@ -44,22 +46,21 @@ class FeedbackEngine:
         pass
 
     def _retrain_step(self):
-        try:
-            if self.trainer is None:
-                self.trainer = GANTrainer()
-            cover    = torch.rand(2, 1, 64, 64)
-            payloads = torch.rand(2, 1, 64, 64)
-            losses   = self.trainer.train_step(cover, payloads)
-            with self._lock:
-                self.retrain_count += 1
-                self._retraining    = False
-            print(f"[FeedbackEngine] Retrain #{self.retrain_count} "
-                  f"d_loss={losses['d_loss']:.4f} "
-                  f"h_loss={losses['h_loss']:.4f}")
-        except Exception as e:
-            print(f"[FeedbackEngine] ERROR in retrain: {e}")
-            with self._lock:
-                self._retraining = False
+        if self.trainer is None:
+            self.trainer = GANTrainer()
+            registry      = ModelRegistry()
+            hider_path    = "storage/models/hider_trained.pt"
+            detector_path = "storage/models/detector_trained.pt"
+            if os.path.exists(hider_path):
+                registry.load_unsigned(
+                    self.trainer.hider, hider_path
+                )
+                print("[FeedbackEngine] Loaded pretrained hider")
+            if os.path.exists(detector_path):
+                registry.load_unsigned(
+                    self.trainer.detector, detector_path
+                )
+                print("[FeedbackEngine] Loaded pretrained detector")
 
     def detection_rate(self) -> float:
         with self._lock:
