@@ -65,60 +65,100 @@ const TunnelTab: React.FC = () => {
 
   return (
     <div className="tunnel-container">
-      <div className="tunnel-controls">
-        <div className="input-group">
-          <label>Protocol</label>
-          <select value={protocol} onChange={(e) => setProtocol(e.target.value as any)}>
-            <option value="http">HTTP (Headers)</option>
-            <option value="dns">DNS (Subdomains)</option>
-          </select>
-        </div>
-
-        <div className="input-group">
-          <label>Target {protocol === 'dns' ? 'IP' : 'URL'}</label>
-          <input 
-            type="text" 
-            placeholder={protocol === 'dns' ? '8.8.8.8' : 'http://evil.com/api'} 
-            value={target}
-            onChange={(e) => setTarget(e.target.value)}
-          />
-        </div>
-
-        <div className="input-group">
-          <label>Payload</label>
-          <textarea 
-            placeholder="Secret message..." 
-            value={payload}
-            onChange={(e) => setPayload(e.target.value)}
-          />
-        </div>
-
-        <button 
-          className={`send-btn ${status}`} 
-          onClick={handleSend}
-          disabled={status === 'sending'}
-        >
-          {status === 'sending' ? 'Transmitting...' : 'Send via Tunnel'}
-        </button>
+      <div className="tab-header">
+        <h2>Covert Communications</h2>
+        <p>Exfiltrate data through established protocols using advanced tunneling techniques.</p>
       </div>
 
-      <div className="traffic-feed">
-        <h3>Live Traffic Monitor (Session: {sessionId})</h3>
-        <div className="logs-container">
-          {logs.length === 0 && <p className="empty-msg">No traffic detected...</p>}
-          {logs.map((log, i) => (
-            <div key={i} className={`log-entry ${log.direction.toLowerCase()}`}>
-              <span className="timestamp">{new Date(log.timestamp * 1000).toLocaleTimeString()}</span>
-              <span className="protocol">{log.protocol}</span>
-              <span className="direction">{log.direction === 'OUT' ? '➔' : '←'}</span>
-              <span className="payload">[{log.payload}]</span>
-              {log.target && <span className="target">to {log.target}</span>}
+      <div className="tunnel-dashboard">
+        <div className="tunnel-controls glass-panel">
+          <h3>Tunnel Configuration</h3>
+          
+          <div className="form-group">
+            <label>Transmission Protocol</label>
+            <div className="protocol-selector">
+              <button 
+                className={`proto-btn ${protocol === 'http' ? 'active' : ''}`}
+                onClick={() => setProtocol('http')}
+              >
+                HTTP Headers
+              </button>
+              <button 
+                className={`proto-btn ${protocol === 'dns' ? 'active' : ''}`}
+                onClick={() => setProtocol('dns')}
+              >
+                DNS Subdomain
+              </button>
             </div>
-          ))}
+          </div>
+
+          <div className="form-group">
+            <label>Target Entrypoint ({protocol === 'dns' ? 'IP' : 'URL'})</label>
+            <input 
+              type="text" 
+              placeholder={protocol === 'dns' ? '8.8.8.8' : 'https://api.target.com/v1'} 
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Covert Payload</label>
+            <textarea 
+              placeholder="Inject secret data sequence..." 
+              value={payload}
+              onChange={(e) => setPayload(e.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <button 
+            className={`send-btn ${status === 'sending' ? 'sending' : ''}`} 
+            onClick={handleSend}
+            disabled={status === 'sending' || !target || !payload}
+          >
+            {status === 'sending' ? (
+              <>
+                <div className="spinner" />
+                Transmitting Packet...
+              </>
+            ) : (
+              <>
+                <span className="icon">📡</span> Deploy Tunnel Packet
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="traffic-monitor glass-panel">
+          <div className="monitor-header">
+            <h3>Live Packet Inspector</h3>
+            <span className="session-pill">Session: {sessionId}</span>
+          </div>
+
+          <div className="terminal-monitor">
+            {logs.length === 0 ? (
+              <div className="empty-terminal">
+                <span className="cursor">_</span>
+                <p>Awaiting incoming/outgoing traffic...</p>
+              </div>
+            ) : (
+              <div className="log-list">
+                {logs.map((log, i) => (
+                  <div key={i} className={`log-entry ${log.direction.toLowerCase()} animate-in`}>
+                    <span className="time">[{new Date(log.timestamp * 1000).toLocaleTimeString()}]</span>
+                    <span className="proto">[{log.protocol}]</span>
+                    <span className="arrow">{log.direction === 'OUT' ? '>>>' : '<<<'}</span>
+                    <span className="data">{log.payload}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default TunnelTab;

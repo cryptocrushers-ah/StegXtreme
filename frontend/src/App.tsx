@@ -21,76 +21,61 @@ function App() {
 
   return (
     <div>
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        position: 'relative', 
-        marginBottom: '2rem',
-        marginTop: '1rem'
-      }}>
-        <h1 style={{ margin: 0 }}>StegXtreme</h1>
+      <header className="app-header">
+        <h1>StegXtreme</h1>
+        <p className="app-subtitle">Advanced Steganography & Detection Suite</p>
         <button 
           onClick={logout} 
-          className="tab-btn" 
-          style={{ 
-            position: 'absolute', 
-            right: 0,
-            borderColor: 'rgba(239, 68, 68, 0.2)',
-            color: '#ef4444',
-            background: 'rgba(239, 68, 68, 0.05)'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-          onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)'}
+          className="logout-btn"
         >
           Logout
         </button>
-      </div>
+      </header>
 
-      <div className="tabs">
+      <nav className="tabs">
         <button
           type="button"
           className={`tab-btn ${activeTab === 'embed' ? 'active' : ''}`}
           onClick={() => setActiveTab('embed')}
         >
-          Embed Payload
+          <span className="icon">📥</span> Embed
         </button>
         <button
           type="button"
           className={`tab-btn ${activeTab === 'extract' ? 'active' : ''}`}
           onClick={() => setActiveTab('extract')}
         >
-          Extract Payload
+          <span className="icon">📤</span> Extract
         </button>
         <button
           type="button"
           className={`tab-btn ${activeTab === 'analyze' ? 'active' : ''}`}
           onClick={() => setActiveTab('analyze')}
         >
-          🔍 Analyse
+          <span className="icon">🔍</span> Analyze
         </button>
         <button
           type="button"
           className={`tab-btn ${activeTab === 'visualise' ? 'active' : ''}`}
           onClick={() => setActiveTab('visualise')}
         >
-          👁️ Visualise
+          <span className="icon">👁️</span> Visualise
         </button>
         <button
           type="button"
           className={`tab-btn ${activeTab === 'tunnel' ? 'active' : ''}`}
           onClick={() => setActiveTab('tunnel')}
         >
-          🚀 Tunnel
+          <span className="icon">🚀</span> Tunnel
         </button>
         <button
           type="button"
           className={`tab-btn ${activeTab === 'train' ? 'active' : ''}`}
           onClick={() => setActiveTab('train')}
         >
-          🧠 Train
+          <span className="icon">🧠</span> Train
         </button>
-      </div>
+      </nav>
 
       <div className="glass-panel">
         {activeTab === 'embed'   && <EmbedTab />}

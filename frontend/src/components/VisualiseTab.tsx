@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
 import { apiRequest } from '../utils/api';
+import './VisualiseTab.css';
 
 type VisMode = 'timeline' | 'bitplane' | 'heatmap';
 
@@ -70,10 +70,14 @@ export default function VisualiseTab() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* Drop zone */}
+    <div className="visualise-container">
+      <div className="tab-header">
+        <h2>Visual Intelligence</h2>
+        <p>Expose hidden forensic signatures through advanced signal processing.</p>
+      </div>
+
       <div
-        className={`file-drop-area ${isDragging ? 'drag-over' : ''}`}
+        className={`file-drop-area ${isDragging ? 'drag-over' : ''} ${file ? 'has-file' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -90,104 +94,114 @@ export default function VisualiseTab() {
           accept="image/*,video/*"
         />
         {file ? (
-          <p style={{ color: '#38bdf8', fontWeight: 600 }}>
-            Selected: {file.name}
-          </p>
+          <div className="selected-file-info">
+            <span className="file-icon">{file.type.startsWith('video/') ? '🎬' : '🖼️'}</span>
+            <div className="details">
+              <strong>{file.name}</strong>
+              <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • {file.type || 'Unknown Type'}</span>
+            </div>
+            <button className="change-btn" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Change</button>
+          </div>
         ) : (
-          <>
-            <p>Drag &amp; drop an image or video file, or click to select.</p>
-          </>
+          <div className="drop-prompt">
+            <div className="pulse-icon">🎞️</div>
+            <p>Drop media or <span>click to select</span></p>
+            <span className="hint">Images & Videos supported</span>
+          </div>
         )}
       </div>
 
-      {/* Mode Selection */}
-      <div style={{ marginTop: '1.5rem' }}>
-        <p style={{ fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8' }}>Visualisation Mode</p>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-            <input 
-              type="radio" 
-              name="mode" 
-              value="timeline" 
-              checked={mode === 'timeline'} 
-              onChange={() => setMode('timeline')} 
-            />
-            Video Noise Timeline
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-            <input 
-              type="radio" 
-              name="mode" 
-              value="bitplane" 
-              checked={mode === 'bitplane'} 
-              onChange={() => setMode('bitplane')} 
-            />
-            Image Bit-Planes
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-            <input 
-              type="radio" 
-              name="mode" 
-              value="heatmap" 
-              checked={mode === 'heatmap'} 
-              onChange={() => setMode('heatmap')} 
-            />
-            Wavelet Heatmap
-          </label>
+      <div className="mode-selection">
+        <h3> forensic Mode </h3>
+        <div className="mode-cards">
+          <div 
+            className={`mode-card ${mode === 'timeline' ? 'active' : ''}`}
+            onClick={() => setMode('timeline')}
+          >
+            <span className="mode-icon">📈</span>
+            <div className="mode-info">
+              <strong>Noise Timeline</strong>
+              <span>Temporal LSB variance in video</span>
+            </div>
+          </div>
+          <div 
+            className={`mode-card ${mode === 'bitplane' ? 'active' : ''}`}
+            onClick={() => setMode('bitplane')}
+          >
+            <span className="mode-icon">🧱</span>
+            <div className="mode-info">
+              <strong>Bit-Plane Slicing</strong>
+              <span>Isolate LSB to MSB layers</span>
+            </div>
+          </div>
+          <div 
+            className={`mode-card ${mode === 'heatmap' ? 'active' : ''}`}
+            onClick={() => setMode('heatmap')}
+          >
+            <span className="mode-icon">🔥</span>
+            <div className="mode-info">
+              <strong>Wavelet Heatmap</strong>
+              <span>High-frequency residue map</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Slider for Timeline Mode */}
       {mode === 'timeline' && (
-        <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <label htmlFor="frames-slider" style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Frames to analyze</label>
-            <span style={{ fontWeight: 600, color: '#38bdf8' }}>{nFrames}</span>
+        <div className="config-panel animate-in">
+          <div className="config-header">
+            <label>Analysis Depth</label>
+            <span className="config-value">{nFrames} Frames</span>
           </div>
           <input
-            id="frames-slider"
             type="range"
             min="10"
             max="120"
-            step="5"
+            step="10"
             value={nFrames}
             onChange={(e) => setNFrames(Number(e.target.value))}
-            style={{ width: '100%', cursor: 'pointer' }}
+            className="premium-slider"
           />
         </div>
       )}
 
-      <button type="submit" disabled={loading} style={{ marginTop: '1.5rem', position: 'relative' }}>
+      <button 
+        onClick={handleSubmit} 
+        disabled={loading || !file} 
+        className={loading ? 'loading' : ''}
+      >
         {loading ? (
-          <div className="button-loading">
-            <div className="spinner"></div>
-            <span>Generating Plot...</span>
-          </div>
-        ) : '🎨 Generate Visualisation'}
+          <>
+            <div className="spinner" />
+            Generating Intelligence...
+          </>
+        ) : (
+          <>
+            <span className="icon">🛡️</span> Run forensic Visualization
+          </>
+        )}
       </button>
 
-      {error && <div className="error-message" style={{ marginTop: '1rem' }}>{error}</div>}
+      {error && <div className="error-message">{error}</div>}
 
-      {/* Result Display */}
       {imageSrc && (
-        <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Visualisation Result
-          </p>
-          <div style={{ 
-            background: 'rgba(0,0,0,0.4)', 
-            padding: '1rem', 
-            borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <img 
-              src={imageSrc} 
-              alt="Visualisation Plot" 
-              style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px' }} 
-            />
+        <div className="visualise-result animate-in">
+          <div className="result-header">
+            <span className="result-label">Forensic Output ({mode})</span>
+            <button className="export-btn" onClick={() => {
+              const link = document.createElement('a');
+              link.href = imageSrc;
+              link.download = `forensic_${mode}_${Date.now()}.png`;
+              link.click();
+            }}>
+              Save Image
+            </button>
+          </div>
+          <div className="image-frame">
+            <img src={imageSrc} alt="Forensic Visualization" />
           </div>
         </div>
       )}
-    </form>
+    </div>
   );
 }

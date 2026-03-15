@@ -39,8 +39,12 @@ const TrainTab: React.FC = () => {
         setStatus('complete');
         socket.close();
       } else {
-        setData((prev) => [...prev, msg].slice(-50)); // Keep last 50 steps
+        setData((prev) => [...prev, msg].slice(-100)); // Keep last 100 steps for smoother curves
       }
+    };
+
+    socket.onclose = () => {
+      if (status !== 'complete') setStatus('idle');
     };
 
     socket.onerror = () => {
@@ -56,74 +60,100 @@ const TrainTab: React.FC = () => {
     };
   }, []);
 
+  const currentMetrics = data.length > 0 ? data[data.length - 1] : { epoch: 0, step: 0, d_loss: 0, h_loss: 0 };
+
   return (
     <div className="train-container">
       <div className="train-header">
-        <h2>Neural Network Training (GAN)</h2>
-        <button 
-          className={`train-btn ${status}`} 
-          onClick={startTraining}
-          disabled={status === 'training'}
-        >
-          {status === 'training' ? 'Training...' : 'Start Training'}
-        </button>
-        {runId && <span className="run-id">ID: {runId}</span>}
+        <div>
+          <h2>Neural Training Dashboard</h2>
+          {runId && <div className="run-id" style={{ marginTop: '0.5rem' }}>Active Session: <strong>{runId}</strong></div>}
+        </div>
+        <div className="header-actions">
+          <button 
+            className={`train-btn ${status === 'training' ? 'training' : ''}`} 
+            onClick={startTraining}
+            disabled={status === 'training'}
+          >
+            {status === 'training' ? 'Training in Progress...' : 'Initialize Training'}
+          </button>
+        </div>
       </div>
 
-      <div className="chart-container glass-panel">
-        <h3>Live Loss Curves</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis 
-              dataKey="step" 
-              stroke="#94a3b8" 
-              label={{ value: 'Steps', position: 'insideBottom', offset: -5 }} 
-            />
-            <YAxis stroke="#94a3b8" />
-            <Tooltip 
-              contentStyle={{ background: '#1e293b', border: '1px solid #334155' }}
-              itemStyle={{ color: '#e2e8f0' }}
-            />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="d_loss" 
-              name="Discriminator Loss" 
-              stroke="#ef4444" 
-              strokeWidth={2}
-              dot={false}
-              animationDuration={300}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="h_loss" 
-              name="Hider Loss" 
-              stroke="#3b82f6" 
-              strokeWidth={2}
-              dot={false}
-              animationDuration={300} 
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="chart-section">
+        <div className="chart-card">
+          <h3>
+            <span role="img" aria-label="chart">📊</span> 
+            Adversarial Loss Convergeance
+          </h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis 
+                dataKey="step" 
+                stroke="#64748b" 
+                tick={{fontSize: 12}}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis 
+                stroke="#64748b"
+                tick={{fontSize: 12}}
+                tickLine={false}
+                axisLine={false}
+                domain={[0, 'auto']}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  background: 'rgba(15, 23, 42, 0.9)', 
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  backdropFilter: 'blur(8px)'
+                }}
+                itemStyle={{ fontSize: '12px', fontWeight: 600 }}
+              />
+              <Legend verticalAlign="top" align="right" height={36} />
+              <Line 
+                type="monotone" 
+                dataKey="d_loss" 
+                name="Discriminator" 
+                stroke="#f43f5e" 
+                strokeWidth={3}
+                dot={false}
+                activeDot={{ r: 6, strokeWidth: 0 }}
+                animationDuration={0}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="h_loss" 
+                name="Hider (GAN)" 
+                stroke="#38bdf8" 
+                strokeWidth={3}
+                dot={false}
+                activeDot={{ r: 6, strokeWidth: 0 }}
+                animationDuration={0} 
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className="training-stats">
         <div className="stat-card">
           <span>Current Epoch</span>
-          <strong>{data.length > 0 ? data[data.length - 1].epoch : 0}</strong>
+          <strong>{currentMetrics.epoch}</strong>
         </div>
         <div className="stat-card">
-          <span>Current Step</span>
-          <strong>{data.length > 0 ? data[data.length - 1].step : 0}</strong>
+          <span>Total Steps</span>
+          <strong>{currentMetrics.step}</strong>
         </div>
-        <div className="stat-card">
-          <span>H-Loss</span>
-          <strong style={{color: '#3b82f6'}}>{data.length > 0 ? data[data.length - 1].h_loss.toFixed(4) : '0.0000'}</strong>
+        <div className="stat-card" style={{ borderLeft: '4px solid #38bdf8' }}>
+          <span>H-Loss Efficiency</span>
+          <strong style={{color: '#38bdf8'}}>{currentMetrics.h_loss.toFixed(6)}</strong>
         </div>
-        <div className="stat-card">
-          <span>D-Loss</span>
-          <strong style={{color: '#ef4444'}}>{data.length > 0 ? data[data.length - 1].d_loss.toFixed(4) : '0.0000'}</strong>
+        <div className="stat-card" style={{ borderLeft: '4px solid #f43f5e' }}>
+          <span>D-Loss Stability</span>
+          <strong style={{color: '#f43f5e'}}>{currentMetrics.d_loss.toFixed(6)}</strong>
         </div>
       </div>
     </div>

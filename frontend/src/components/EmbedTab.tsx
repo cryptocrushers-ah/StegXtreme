@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { apiRequest } from '../utils/api';
+import './Embedding.css';
 
 export default function EmbedTab() {
   const [file, setFile] = useState<File | null>(null);
@@ -79,71 +80,100 @@ export default function EmbedTab() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div 
-        className={`file-drop-area ${isDragging ? 'drag-over' : ''}`}
+    <div className="embed-container">
+      <div className="tab-header">
+        <h2>Secure Data Injection</h2>
+        <p>Hide encrypted payloads within carrier media using adversarial neural patterns.</p>
+      </div>
+
+      <div
+        className={`file-drop-area ${isDragging ? 'drag-over' : ''} ${file ? 'has-file' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          style={{ display: 'none' }} 
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
           onChange={(e) => {
-            if (e.target.files && e.target.files[0]) {
-              setFile(e.target.files[0]);
-            }
+            if (e.target.files?.[0]) setFile(e.target.files[0]);
           }}
           accept="image/png, audio/wav, video/mp4, video/avi"
         />
         {file ? (
-          <p style={{ color: '#38bdf8', fontWeight: 600 }}>File selected: {file.name}</p>
+          <div className="selected-file-info">
+            <span className="file-icon">📁</span>
+            <div className="details">
+              <strong>{file.name}</strong>
+              <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • Carrier Material</span>
+            </div>
+            <button className="change-btn" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Change Carrier</button>
+          </div>
         ) : (
-          <p>Drag & drop your cover file here (PNG, WAV, MP4), or click to select.</p>
+          <div className="drop-prompt">
+            <div className="pulse-icon">📥</div>
+            <p>Drop carrier file or <span>click to browse</span></p>
+            <span className="hint">Supports PNG, WAV, MP4, AVI</span>
+          </div>
         )}
       </div>
 
-      <div className="form-group">
-        <label>Secret Payload (Text)</label>
-        <textarea 
-          rows={4}
-          value={payload}
-          onChange={(e) => setPayload(e.target.value)}
-          placeholder="Enter the secret message to hide..."
-        />
-      </div>
+      <div className="injection-dashboard glass-panel">
+        <div className="form-group">
+          <label>Covert Payload (Target Sequence)</label>
+          <textarea 
+            rows={4}
+            value={payload}
+            onChange={(e) => setPayload(e.target.value)}
+            placeholder="Enter the secret message to be serialized into the carrier..."
+          />
+        </div>
 
-      <div className="form-group">
-        <label>Encryption Password</label>
-        <input 
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Secure password..."
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Algorithm</label>
-        <select value={algorithm} onChange={(e) => setAlgorithm(e.target.value)}>
-          <option value="default">Default Auto-Detect (DCT/LSB)</option>
-        </select>
-      </div>
-
-      <button type="submit" disabled={loading} style={{ position: 'relative' }}>
-        {loading ? (
-          <div className="button-loading">
-            <div className="spinner"></div>
-            <span>Processing...</span>
+        <div className="dashboard-row">
+          <div className="form-group">
+            <label>Encryption Key</label>
+            <input 
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Secure cryptographic key..."
+            />
           </div>
-        ) : 'Embed Payload & Download'}
-      </button>
 
-      {success && <div className="success-message">Successfully embedded and downloaded!</div>}
+          <div className="form-group">
+            <label>Neural Algorithm</label>
+            <select value={algorithm} onChange={(e) => setAlgorithm(e.target.value)}>
+              <option value="default">Auto-Select (Optimized)</option>
+              <option value="lsb">LSB Slicing (Legacy)</option>
+              <option value="dct">DCT Transform (Robust)</option>
+            </select>
+          </div>
+        </div>
+
+        <button 
+          onClick={handleSubmit} 
+          disabled={loading || !file || !payload || !password} 
+          className={loading ? 'loading' : ''}
+          style={{ width: '100%' }}
+        >
+          {loading ? (
+            <>
+              <div className="spinner" />
+              Serializing Payload...
+            </>
+          ) : (
+            <>
+              <span className="icon">🔒</span> Embed & Generate Stego-Media
+            </>
+          )}
+        </button>
+      </div>
+
+      {success && <div className="success-message">Payload successfully serialized and downloaded!</div>}
       {error && <div className="error-message">{error}</div>}
-    </form>
+    </div>
   );
 }
