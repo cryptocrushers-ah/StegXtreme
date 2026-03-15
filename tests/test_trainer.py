@@ -4,6 +4,11 @@ import pytest
 from core.neural.trainer import GANTrainer
 from core.neural.registry import ModelRegistry
 from core.neural.hider import HiderNetwork
+import os
+
+
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 
 # shared inputs
 B, H, W  = 2, 64, 64

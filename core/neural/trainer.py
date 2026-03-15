@@ -6,19 +6,23 @@ from core.neural.detector import DetectorNetwork
 class GANTrainer:
     def __init__(self, device=None):
         self.device = device or (
-            torch.device("cuda") if torch.cuda.is_available() 
+            torch.device("cuda") if torch.cuda.is_available()
             else torch.device("cpu")
         )
         self.hider    = HiderNetwork().to(self.device)
         self.detector = DetectorNetwork().to(self.device)
-        
+
         self.h_optimizer = torch.optim.Adam(
             self.hider.parameters(), lr=1e-4
         )
         self.d_optimizer = torch.optim.Adam(
             self.detector.parameters(), lr=1e-4
-        )
+    )
         self.bce = nn.BCELoss()
+
+    # initialize optimizer states to prevent exp_avg_sq error
+        self.h_optimizer.zero_grad()
+        self.d_optimizer.zero_grad()
 
     def train_step(self, cover_frames, payloads):
         """
