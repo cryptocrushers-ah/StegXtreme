@@ -69,7 +69,7 @@ const TrainTab: React.FC = () => {
           <h2>Neural Training Dashboard</h2>
           {runId && <div className="run-id" style={{ marginTop: '0.5rem' }}>Active Session: <strong>{runId}</strong></div>}
         </div>
-        <div className="header-actions">
+        <div className="train-actions">
           <button 
             className={`train-btn ${status === 'training' ? 'training' : ''}`} 
             onClick={startTraining}
