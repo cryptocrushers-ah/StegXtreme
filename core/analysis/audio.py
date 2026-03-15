@@ -24,13 +24,13 @@ import numpy as np
 try:
     import librosa
     _LIBROSA_OK = True
-except ImportError:
+except (ImportError, TypeError):
     _LIBROSA_OK = False
 
 try:
     import soundfile as sf
     _SF_OK = True
-except ImportError:
+except (ImportError, TypeError):
     _SF_OK = False
 
 
@@ -41,14 +41,21 @@ except ImportError:
 def _load_audio(path: str):
     """Return (samples: np.ndarray[float32], sample_rate: int)."""
     if _LIBROSA_OK:
-        y, sr = librosa.load(path, sr=None, mono=True)
-        return y.astype(np.float32), int(sr)
+        try:
+            y, sr = librosa.load(path, sr=None, mono=True)
+            return y.astype(np.float32), int(sr)
+        except (TypeError, Exception):
+            # Fallback to soundfile if librosa fails at runtime (e.g. due to scipy/torch issues)
+            pass
     if _SF_OK:
-        y, sr = sf.read(path, dtype="float32", always_2d=False)
-        if y.ndim > 1:
-            y = y.mean(axis=1)
-        return y, int(sr)
-    raise ImportError("Neither librosa nor soundfile is installed.")
+        try:
+            y, sr = sf.read(path, dtype="float32", always_2d=False)
+            if y.ndim > 1:
+                y = y.mean(axis=1)
+            return y, int(sr)
+        except Exception:
+            pass
+    raise ImportError("Neither librosa nor soundfile could decode the audio.")
 
 
 def _mfcc_variance_score(y: np.ndarray, sr: int) -> float:

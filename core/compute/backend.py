@@ -14,12 +14,12 @@ def dwt2(arr):
     LH = (L[0::2,:] - L[1::2,:]) * 0.5
     HL = (Hh[0::2,:] + Hh[1::2,:]) * 0.5
     HH = (Hh[0::2,:] - Hh[1::2,:]) * 0.5
-    return LL.get(), LH.get(), HL.get(), HH.get()  # exit: to CPU
+    return to_cpu(LL), to_cpu(LH), to_cpu(HL), to_cpu(HH)  # exit: to CPU
 
 def make_carriers(n, cpb, seed):
     cp.random.seed(seed)
     raw = cp.random.randint(0, 2, size=n*cpb, dtype=cp.uint8)
-    return (raw.reshape(n, cpb).astype(cp.float32) * 2 - 1).get()
+    return to_cpu(raw.reshape(n, cpb).astype(cp.float32) * 2 - 1)
 
 
 def ss_embed(region, bits, n, seed, strength):
@@ -39,4 +39,5 @@ def to_cpu(arr):
         return arr.get()
     return np.asarray(arr)               # stub — Dev A replaces with arr.get()
 def free():         
-    cp.get_default_memory_pool().free_all_blocks()  # stub — Dev A replaces with memory pool release
+    if GPU_ENABLED:
+        cp.get_default_memory_pool().free_all_blocks()
