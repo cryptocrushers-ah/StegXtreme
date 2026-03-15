@@ -3,9 +3,10 @@ import EmbedTab from './components/EmbedTab';
 import ExtractTab from './components/ExtractTab';
 import AnalyzeTab from './components/AnalyzeTab';
 import VisualiseTab from './components/VisualiseTab';
+import TunnelTab from './components/TunnelTab';
 import './App.css';
 
-type Tab = 'embed' | 'extract' | 'analyze' | 'visualise';
+type Tab = 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('embed');
@@ -43,6 +44,13 @@ function App() {
         >
           👁️ Visualise
         </button>
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'tunnel' ? 'active' : ''}`}
+          onClick={() => setActiveTab('tunnel')}
+        >
+          🚀 Tunnel
+        </button>
       </div>
 
       <div className="glass-panel">
@@ -50,6 +58,7 @@ function App() {
         {activeTab === 'extract' && <ExtractTab />}
         {activeTab === 'analyze' && <AnalyzeTab />}
         {activeTab === 'visualise' && <VisualiseTab />}
+        {activeTab === 'tunnel' && <TunnelTab />}
       </div>
     </div>
   );
