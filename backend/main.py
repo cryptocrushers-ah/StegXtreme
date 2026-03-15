@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from backend.websockets.training import training_ws_endpoint
-from backend.api import embed, extract, analyze, visualise, tunnel, auth
+from backend.api import embed, extract, analyze, visualise, tunnel, auth, stats
 from backend.api.auth import get_current_user
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -30,6 +30,7 @@ async def health():
 async def training_websocket(websocket: WebSocket, run_id: str):
     await training_ws_endpoint(websocket, run_id)
 
+app.include_router(stats.router)
 app.include_router(auth.router)
 app.include_router(embed.router, dependencies=[Depends(get_current_user)])
 app.include_router(extract.router, dependencies=[Depends(get_current_user)])

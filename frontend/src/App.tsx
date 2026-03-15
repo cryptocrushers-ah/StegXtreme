@@ -7,12 +7,13 @@ import AnalyzeTab from './components/AnalyzeTab';
 import VisualiseTab from './components/VisualiseTab';
 import TunnelTab from './components/TunnelTab';
 import TrainTab from './components/TrainTab';
+import LandingTab from './components/LandingTab';
 import './App.css';
 
-type Tab = 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel' | 'train';
+type Tab = 'home' | 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel' | 'train';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('embed');
+  const [activeTab, setActiveTab] = useState<Tab>('home');
   const { isAuthenticated, logout } = useAuthStore();
 
   if (!isAuthenticated) {
@@ -22,7 +23,7 @@ function App() {
   return (
     <div>
       <header className="app-header">
-        <h1>StegXtreme</h1>
+        <h1 onClick={() => setActiveTab('home')} style={{cursor: 'pointer'}}>StegXtreme</h1>
         <p className="app-subtitle">Advanced Steganography & Detection Suite</p>
         <button 
           onClick={logout} 
@@ -33,6 +34,13 @@ function App() {
       </header>
 
       <nav className="tabs">
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'home' ? 'active' : ''}`}
+          onClick={() => setActiveTab('home')}
+        >
+          <span className="icon">🏠</span> Home
+        </button>
         <button
           type="button"
           className={`tab-btn ${activeTab === 'embed' ? 'active' : ''}`}
@@ -77,7 +85,8 @@ function App() {
         </button>
       </nav>
 
-      <div className="glass-panel">
+      <div className={`glass-panel ${activeTab === 'home' ? 'landing-panel' : ''}`}>
+        {activeTab === 'home'    && <LandingTab onNavigate={setActiveTab} />}
         {activeTab === 'embed'   && <EmbedTab />}
         {activeTab === 'extract' && <ExtractTab />}
         {activeTab === 'analyze' && <AnalyzeTab />}
