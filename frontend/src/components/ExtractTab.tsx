@@ -95,8 +95,13 @@ export default function ExtractTab() {
         />
       </div>
 
-      <button type="submit" disabled={loading}>
-        {loading ? 'Extracting...' : 'Extract Payload'}
+      <button type="submit" disabled={loading} style={{ position: 'relative' }}>
+        {loading ? (
+          <div className="button-loading">
+            <div className="spinner"></div>
+            <span>Extracting...</span>
+          </div>
+        ) : 'Extract Payload'}
       </button>
 
       {extractedPayload && (

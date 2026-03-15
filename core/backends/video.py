@@ -6,7 +6,7 @@ from core.crypto.cipher import aes_encrypt, aes_decrypt
 
 class VideoBackend:
     @classmethod
-    def embed(cls, cover_path: str, out_path: str, payload_bits, password: str) -> str:
+    def embed(cls, cover_path: str, out_path: str, payload, password: str) -> str:
         """
         Embeds a payload into the cover video and saves it to out_path.
         A very simple LSB implementation for the first frame is used here as a placeholder for robustness.
@@ -27,14 +27,14 @@ class VideoBackend:
         # Encrypt the payload and convert to bits
         salt = b'StegXtreme_Video' # Fixed salt or stored in metadata
         key = derive_key(password, salt)
-        # payload_bits is likely numpy array or bytes. if bytes, encrypt it
-        if isinstance(payload_bits, bytes):
-             encrypted_payload = aes_encrypt(payload_bits, key)
+        # payload is likely numpy array or bytes. if bytes, encrypt it
+        if isinstance(payload, bytes):
+             encrypted_payload = aes_encrypt(payload, key)
              # Convert to bits
              bits = np.unpackbits(np.frombuffer(encrypted_payload, dtype=np.uint8))
         else:
              # Just a simplified demonstration
-             bits = payload_bits
+             bits = payload
              
         # Embed bits and lengths in the first frame (naive LSB)
         frame_idx = 0

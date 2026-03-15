@@ -17,6 +17,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from core.analysis.image import ImageAnalyzer
 from core.analysis.audio import AudioAnalyzer
 from core.analysis.video import VideoAnalyzer
+from backend.utils.validation import validate_file
 
 router = APIRouter()
 
@@ -45,6 +46,7 @@ def _detect_media_type(filename: str) -> str:
 
 @router.post("/api/analyze")
 async def analyze_file(file: UploadFile = File(...)) -> Dict[str, Any]:
+    await validate_file(file)
     """
     Upload any media file (image, audio, video) and receive a steganography
     probability score together with per-feature breakdown.

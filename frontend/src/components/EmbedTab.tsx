@@ -48,39 +48,29 @@ export default function EmbedTab() {
     formData.append('algorithm', algorithm);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/embed`, {
+      const response = await apiRequest('/api/embed', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth-storage') || '{}').state?.token || ''}`
-        },
         body: formData,
-      });
+      }, true); // Pass true to get raw response for blob
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || 'Failed to embed');
+      if (response instanceof Response) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        const extMatch = file.name.match(/\.[0-9a-z]+$/i);
+        const ext = extMatch ? extMatch[0] : '';
+        const baseName = file.name.replace(ext, '');
+        a.download = `${baseName}_stego${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        setSuccess(true);
+        setFile(null);
+        setPayload('');
+        setPassword('');
       }
-
-      // Download the stego file
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      // create safe filename
-      const extMatch = file.name.match(/\.[0-9a-z]+$/i);
-      const ext = extMatch ? extMatch[0] : '';
-      const baseName = file.name.replace(ext, '');
-      a.download = `${baseName}_stego${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      setSuccess(true);
-      // Reset form on success
-      setFile(null);
-      setPayload('');
-      setPassword('');
-      
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -143,8 +133,13 @@ export default function EmbedTab() {
         </select>
       </div>
 
-      <button type="submit" disabled={loading}>
-        {loading ? 'Processing...' : 'Embed Payload & Download'}
+      <button type="submit" disabled={loading} style={{ position: 'relative' }}>
+        {loading ? (
+          <div className="button-loading">
+            <div className="spinner"></div>
+            <span>Processing...</span>
+          </div>
+        ) : 'Embed Payload & Download'}
       </button>
 
       {success && <div className="success-message">Successfully embedded and downloaded!</div>}

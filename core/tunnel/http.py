@@ -10,7 +10,7 @@ class HTTPTunnel:
     @staticmethod
     def send(payload_bytes: bytes, target_url: str):
         # Base64 encode the payload
-        encoded = base64.b64encode(payload_bytes).decode('utf-8')
+        encoded: str = base64.b64encode(payload_bytes).decode('utf-8')
         
         # Split payload if it's too long for a single header
         # X-Request-ID for part 1, X-Trace-ID for part 2
