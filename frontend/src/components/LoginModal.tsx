@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import './LoginModal.css';
 
-const LoginModal: React.FC = () => {
+interface LoginModalProps {
+  onClose?: () => void;
+}
+
+const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,9 +44,12 @@ const LoginModal: React.FC = () => {
   };
 
   return (
-    <div className="login-overlay">
-      <div className="login-card glass-panel">
-        <h2>StegXtreme Access</h2>
+    <div className="login-overlay" onClick={onClose}>
+      <div className="login-card glass-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>StegXtreme Access</h2>
+          {onClose && <button className="close-btn" onClick={onClose}>&times;</button>}
+        </div>
         <p className="subtitle">Please authenticate to continue</p>
         
         <form onSubmit={handleSubmit}>

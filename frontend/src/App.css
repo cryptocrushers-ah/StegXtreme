@@ -12,16 +12,12 @@
 }
 
 .logout-btn {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
   width: auto !important;
   margin-top: 0 !important;
   background: rgba(239, 68, 68, 0.1) !important;
   border: 1px solid rgba(239, 68, 68, 0.2) !important;
   color: #ef4444 !important;
-  padding: 0.5rem 1rem !important;
+  padding: 0.5rem 1.25rem !important;
   font-size: 0.875rem !important;
   border-radius: 10px !important;
   box-shadow: none !important;
@@ -46,6 +42,33 @@
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+.header-actions {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 1rem;
+}
+
+.login-trigger-btn {
+  width: auto !important;
+  margin-top: 0 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  border: 1px solid rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+  padding: 0.5rem 1.25rem !important;
+  font-size: 0.875rem !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.login-trigger-btn:hover {
+  background: rgba(56, 189, 248, 0.2) !important;
+  transform: scale(1.05) !important;
 }
 
 .glass-panel.landing-panel {
