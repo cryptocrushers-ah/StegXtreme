@@ -1,12 +1,14 @@
-import torch
-import cupy as cp
+try:
+    import torch
+    import cupy as cp
+except ImportError:
+    cp = None
+    torch = None
+
 import numpy as np
 import pytest
-from core.compute.backend import dwt2, ss_embed, to_device, free
-from core.neural.trainer import GANTrainer
-from core.neural.registry import ModelRegistry
-from core.neural.hider import HiderNetwork
-from core.neural.run_training import run_full_training
+
+pytestmark = pytest.mark.skipif(cp is None or torch is None, reason="cupy or torch not installed")
 
 
 def get_gpu_memory_mb():

@@ -4,7 +4,16 @@ from backend.websockets.training import training_ws_endpoint
 from backend.api import embed, extract, analyze, visualise, tunnel, auth
 from backend.api.auth import get_current_user
 
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
 app = FastAPI(title="StegXtreme")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

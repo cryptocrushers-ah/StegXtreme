@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret_for_dev_only_do_not_use_in
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 1 day
 
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -36,7 +36,7 @@ FAKE_USERS_DB = {
         "username": "admin",
         "full_name": "StegXtreme Admin",
         "email": "admin@stegxtreme.com",
-        "hashed_password": pwd_context.hash("admin123"),
+        "hashed_password": "$argon2id$v=19$m=65536,t=3,p=4$FgLgnPPe23sPYUyptVYqZQ$aYJpc47e4io2Oic5oqM/SypIjqfLYOrNVXn8zMT8chg",
         "disabled": False,
     }
 }
@@ -49,9 +49,9 @@ def verify_password(plain_password, hashed_password):
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

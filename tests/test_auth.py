@@ -1,14 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
 import sys
-from unittest.mock import MagicMock
-
-# Mock torch before it's imported by other modules
-mock_torch = MagicMock()
-mock_torch.__path__ = []
-sys.modules["torch"] = mock_torch
-sys.modules["torch.nn"] = MagicMock()
-sys.modules["torch.optim"] = MagicMock()
+# from unittest.mock import MagicMock
+# mock_torch = MagicMock()
+# mock_torch.__path__ = []
+# sys.modules["torch"] = mock_torch
+# sys.modules["torch.nn"] = MagicMock()
+# sys.modules["torch.optim"] = MagicMock()
 
 from backend.main import app
 
