@@ -18,8 +18,8 @@
 
 .file-drop-area.has-file {
   border-style: solid;
-  border-color: rgba(56, 189, 248, 0.3);
-  background: rgba(56, 189, 248, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
   padding: 2rem;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .details span {
-  color: #64748b;
+  color: #a1a1aa;
   font-size: 0.85rem;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .drop-prompt p span {
-  color: #38bdf8;
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -77,9 +77,9 @@
 }
 
 .results-container {
-  background: rgba(15, 23, 42, 0.4);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 10, 10, 0.6);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 2rem;
 }
 
@@ -91,10 +91,10 @@
 }
 
 .media-type-badge {
-  background: rgba(56, 189, 248, 0.1);
-  color: #38bdf8;
+  background: #ffffff;
+  color: #000000;
   padding: 0.25rem 0.75rem;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -131,7 +131,7 @@
 .prob-header .value {
   font-size: 2rem;
   font-weight: 800;
-  font-family: 'Fira Code', monospace;
+  font-family: -apple-system, blinkmacsystemfont, sans-serif;
 }
 
 .prob-track {
@@ -165,9 +165,9 @@
 }
 
 .feature-card {
-  background: rgba(30, 41, 59, 0.3);
+  background: rgba(255, 255, 255, 0.02);
   padding: 1.25rem;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -197,6 +197,6 @@
 
 .feature-mini-bar .fill {
   height: 100%;
-  background: #38bdf8;
+  background: #ffffff;
   border-radius: 2px;
 }

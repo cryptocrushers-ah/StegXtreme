@@ -361,8 +361,8 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
                   <div className="t-out">Epoch  001 · hider_loss=0.8421 · det_acc=51.2%</div>
                   <div className="t-out">Epoch  050 · hider_loss=0.3107 · det_acc=49.8%</div>
                   <div className="t-out">Epoch  200 · hider_loss=0.0922 · <span className="t-hl">PSNR=38.4dB ✓</span></div>
-                  <div><span class="t-prompt">❯</span> <span class="t-cmd">python -m core.neural.registry export --onnx</span></div>
-                  <div className="t-out"><span class="t-hl">→</span> storage/models/hider_v2.onnx</div>
+                  <div><span className="t-prompt">❯</span> <span className="t-cmd">python -m core.neural.registry export --onnx</span></div>
+                  <div className="t-out"><span className="t-hl">→</span> storage/models/hider_v2.onnx</div>
                 </div>
               </div>
             </div>
@@ -370,10 +370,10 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
               <div className="gan-metrics">
                 <div className="gmet"><span className="gmet-val blue">38.4</span><span className="gmet-lbl">dB PSNR</span></div>
                 <div className="gmet"><span className="gmet-val green">0.997</span><span className="gmet-lbl">SSIM score</span></div>
-                <div className="gmet"><span className="gmet-val amber">200</span><span class="gmet-lbl">Training epochs</span></div>
-                <div className="gmet"><span className="gmet-val red">&lt;5%</span><span class="gmet-lbl">Detector accuracy</span></div>
+                <div className="gmet"><span className="gmet-val amber">200</span><span className="gmet-lbl">Training epochs</span></div>
+                <div className="gmet"><span className="gmet-val red">&lt;5%</span><span className="gmet-lbl">Detector accuracy</span></div>
                 <div className="gmet gmet-wide">
-                  <span className="gmet-val" style={{ color: 'var(--text)', fontSize: '17px', fontFamily: '"SF Mono", "Fira Code", monospace', letterSpacing: '-0.5px' }}>ONNX · GPU / CPU</span>
+                  <span className="gmet-val" style={{ color: 'var(--white)', fontSize: '17px', fontFamily: 'var(--sf-font)', letterSpacing: '-0.5px' }}>ONNX · GPU / CPU</span>
                   <span className="gmet-lbl" style={{ display: 'block', marginTop: '4px' }}>Inference runtime</span>
                 </div>
               </div>
@@ -388,21 +388,21 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
           <div className="fade-up">
             <p className="section-label">Technology</p>
             <h2 className="section-title">Built on the right tools.</h2>
-            <p className="section-body">Two terminals run everything. <span className="mono" style={{ fontSize: '15px' }}>uvicorn</span> for the backend, <span className="mono" style={{ fontSize: '15px' }}>npm run dev</span> for the frontend.</p>
+            <p className="section-body">Two terminals run everything. <span className="mono" style={{ fontSize: '15px', color: 'var(--white)' }}>uvicorn</span> for the backend, <span className="mono" style={{ fontSize: '15px', color: 'var(--white)' }}>npm run dev</span> for the frontend.</p>
           </div>
           <div className="stack-list fade-up d1">
             <div className="stack-item"><div className="stack-icon">⚡</div><div><span className="stack-name">FastAPI</span><span className="stack-role">Async backend</span></div></div>
             <div className="stack-item"><div className="stack-icon">⚛️</div><div><span className="stack-name">React + Vite</span><span className="stack-role">Frontend SPA</span></div></div>
             <div className="stack-item"><div className="stack-icon">🔷</div><div><span className="stack-name">TypeScript</span><span className="stack-role">Type safety</span></div></div>
-            <div className="stack-item"><div className="stack-icon">🧮</div><div><span className="stack-name">NumPy / CuPy</span><span class="stack-role">Math compute</span></div></div>
+            <div className="stack-item"><div className="stack-icon">🧮</div><div><span className="stack-name">NumPy / CuPy</span><span className="stack-role">Math compute</span></div></div>
             <div className="stack-item"><div className="stack-icon">🔦</div><div><span className="stack-name">PyTorch</span><span className="stack-role">GAN training</span></div></div>
-            <div className="stack-item"><div className="stack-icon">📦</div><div><span className="stack-name">ONNX Runtime</span><span class="stack-role">Inference</span></div></div>
-            <div className="stack-item"><div className="stack-icon">🖼️</div><div><span className="stack-name">OpenCV / PIL</span><span class="stack-role">Image processing</span></div></div>
-            <div className="stack-item"><div className="stack-icon">🎵</div><div><span className="stack-name">Librosa</span><span class="stack-role">Audio analysis</span></div></div>
-            <div className="stack-item"><div className="stack-icon">🌐</div><div><span className="stack-name">Scapy</span><span class="stack-role">Packet crafting</span></div></div>
-            <div className="stack-item"><div className="stack-icon">🔑</div><div><span className="stack-name">cryptography</span><span class="stack-role">AES / Ed25519</span></div></div>
-            <div className="stack-item"><div className="stack-icon">🗄️</div><div><span className="stack-name">SQLAlchemy</span><span class="stack-role">ORM / SQLite</span></div></div>
-            <div className="stack-item"><div className="stack-icon">🔒</div><div><span className="stack-name">Argon2-cffi</span><span class="stack-role">Key derivation</span></div></div>
+            <div className="stack-item"><div className="stack-icon">📦</div><div><span className="stack-name">ONNX Runtime</span><span className="stack-role">Inference</span></div></div>
+            <div className="stack-item"><div className="stack-icon">🖼️</div><div><span className="stack-name">OpenCV / PIL</span><span className="stack-role">Image processing</span></div></div>
+            <div className="stack-item"><div className="stack-icon">🎵</div><div><span className="stack-name">Librosa</span><span className="stack-role">Audio analysis</span></div></div>
+            <div className="stack-item"><div className="stack-icon">🌐</div><div><span className="stack-name">Scapy</span><span className="stack-role">Packet crafting</span></div></div>
+            <div className="stack-item"><div className="stack-icon">🔑</div><div><span className="stack-name">cryptography</span><span className="stack-role">AES / Ed25519</span></div></div>
+            <div className="stack-item"><div className="stack-icon">🗄️</div><div><span className="stack-name">SQLAlchemy</span><span className="stack-role">ORM / SQLite</span></div></div>
+            <div className="stack-item"><div className="stack-icon">🔒</div><div><span className="stack-name">Argon2-cffi</span><span className="stack-role">Key derivation</span></div></div>
           </div>
         </div>
       </section>

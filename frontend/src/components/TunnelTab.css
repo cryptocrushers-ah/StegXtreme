@@ -40,9 +40,10 @@
 }
 
 .proto-btn.active {
-  background: rgba(56, 189, 248, 0.1) !important;
-  border-color: #38bdf8 !important;
-  color: #38bdf8 !important;
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) !important;
 }
 
 .send-btn {
@@ -55,10 +56,11 @@
 }
 
 .send-btn.sending {
-  background: rgba(16, 185, 129, 0.1) !important;
-  color: #10b981 !important;
-  border: 1px solid rgba(16, 185, 129, 0.3) !important;
-  box-shadow: none !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3) !important;
+  animation: pulse 2s infinite;
 }
 
 .traffic-monitor {
@@ -85,12 +87,12 @@
 }
 
 .terminal-monitor {
-  background: #020617;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 1.25rem;
   flex: 1;
-  font-family: 'Fira Code', monospace;
+  font-family: var(--sf-font);
   overflow-y: auto;
   max-height: 500px;
   min-height: 400px;
@@ -124,12 +126,12 @@
   line-height: 1.4;
 }
 
-.log-entry.out { color: #38bdf8; }
-.log-entry.in { color: #10b981; }
+.log-entry.out { color: #ffffff; }
+.log-entry.in { color: #a1a1aa; }
 
-.log-entry .time { color: #475569; }
-.log-entry .proto { color: #6366f1; font-weight: 600; }
-.log-entry .data { color: #f1f5f9; word-break: break-all; }
+.log-entry .time { color: #52525b; }
+.log-entry .proto { color: #ffffff; font-weight: 700; border: 1px solid var(--border); padding: 0 4px; border-radius: 3px; }
+.log-entry .data { color: #ffffff; word-break: break-all; opacity: 0.9; }
 
 @media (max-width: 1024px) {
   .tunnel-dashboard {
