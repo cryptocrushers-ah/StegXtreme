@@ -41,9 +41,9 @@ function App() {
         <div className="header-center">
           <h1 onClick={() => setActiveTab('embed')} style={{cursor: 'pointer'}}>StegXtreme</h1>
           <p className="app-subtitle">Advanced Steganography & Detection Suite</p>
+          <ModelStats />
         </div>
         <div className="header-actions">
-          <ModelStats />
           <button 
             onClick={handleLogout} 
             className="logout-btn"

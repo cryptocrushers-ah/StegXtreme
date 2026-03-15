@@ -20,6 +20,10 @@
 .header-center {
   flex: 2;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .app-subtitle {
@@ -98,11 +102,12 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  padding: 0.4rem 1.25rem;
+  padding: 0.45rem 1.5rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 50px;
   backdrop-filter: blur(10px);
+  margin-top: 1rem;
 }
 
 .stat-group {
