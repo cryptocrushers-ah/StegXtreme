@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { apiRequest } from '../utils/api';
+import './Embedding.css';
 
 export default function ExtractTab() {
   const [file, setFile] = useState<File | null>(null);
@@ -58,61 +59,92 @@ export default function ExtractTab() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div 
-        className={`file-drop-area ${isDragging ? 'drag-over' : ''}`}
+    <div className="extract-container">
+      <div className="tab-header">
+        <h2>Secure Sequence Extraction</h2>
+        <p>Retrieve covert payloads from stego-media using high-entropy decryption keys.</p>
+      </div>
+
+      <div
+        className={`file-drop-area ${isDragging ? 'drag-over' : ''} ${file ? 'has-file' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          style={{ display: 'none' }} 
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
           onChange={(e) => {
-            if (e.target.files && e.target.files[0]) {
-              setFile(e.target.files[0]);
-            }
+            if (e.target.files?.[0]) setFile(e.target.files[0]);
           }}
           accept="image/png, audio/wav, video/mp4, video/avi"
         />
         {file ? (
-          <p style={{ color: '#38bdf8', fontWeight: 600 }}>File selected: {file.name}</p>
+          <div className="selected-file-info">
+            <span className="file-icon">🕵️</span>
+            <div className="details">
+              <strong>{file.name}</strong>
+              <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • Stego-Carrier</span>
+            </div>
+            <button className="change-btn" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Change File</button>
+          </div>
         ) : (
-          <p>Drag & drop your stego file here, or click to select.</p>
+          <div className="drop-prompt">
+            <div className="pulse-icon">📂</div>
+            <p>Drop stego-media or <span>click to browse</span></p>
+            <span className="hint">Supports encrypted PNG, WAV, MP4 carriers</span>
+          </div>
         )}
       </div>
 
-      <div className="form-group">
-        <label>Decryption Password</label>
-        <input 
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Secure password..."
-        />
+      <div className="extraction-dashboard glass-panel">
+        <div className="form-group">
+          <label>Extraction Key (Passphrase)</label>
+          <input 
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Authorized decryption key..."
+          />
+        </div>
+
+        <button 
+          onClick={handleSubmit} 
+          disabled={loading || !file || !password} 
+          className={loading ? 'loading' : ''}
+          style={{ width: '100%' }}
+        >
+          {loading ? (
+            <>
+              <div className="spinner" />
+              Reconstructing Sequence...
+            </>
+          ) : (
+            <>
+              <span className="icon">🔓</span> Extract & Decrypt Payload
+            </>
+          )}
+        </button>
       </div>
 
-      <button type="submit" disabled={loading} style={{ position: 'relative' }}>
-        {loading ? (
-          <div className="button-loading">
-            <div className="spinner"></div>
-            <span>Extracting...</span>
-          </div>
-        ) : 'Extract Payload'}
-      </button>
-
       {extractedPayload && (
-        <div className="success-message" style={{ marginTop: '2rem' }}>
-          <h4>Extracted Payload:</h4>
-          <p style={{ wordBreak: 'break-all', marginTop: '0.5rem', fontFamily: 'monospace' }}>
-            {extractedPayload}
-          </p>
+        <div className="results-container animate-in">
+          <div className="results-header">
+            <span className="result-label">Extracted Intelligence</span>
+            <button className="copy-btn" onClick={() => navigator.clipboard.writeText(extractedPayload)}>
+              Copy to Clipboard
+            </button>
+          </div>
+          <div className="payload-display">
+            <pre>{extractedPayload}</pre>
+          </div>
         </div>
       )}
+
       {error && <div className="error-message">{error}</div>}
-    </form>
+    </div>
   );
 }

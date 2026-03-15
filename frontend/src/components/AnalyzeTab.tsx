@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { apiRequest } from '../utils/api';
+import './AnalyzeTab.css';
 
 interface FeatureScore {
   label: string;
@@ -19,60 +20,25 @@ function ProbabilityBar({ probability, verdict }: { probability: number; verdict
   const pct = Math.round(probability * 100);
   const color =
     verdict === 'CLEAN'
-      ? '#22c55e'
+      ? '#10b981'
       : verdict === 'SUSPICIOUS'
       ? '#f59e0b'
-      : '#ef4444';
+      : '#f43f5e';
 
   return (
-    <div style={{ marginTop: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-        <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#94a3b8' }}>
-          Steganography Probability
-        </span>
-        <span style={{ fontWeight: 700, color }}>
-          {pct}%
-        </span>
+    <div className="probability-section">
+      <div className="prob-header">
+        <span className="label">Inference Confidence</span>
+        <span className="value" style={{ color }}>{pct}%</span>
       </div>
-      <div
-        style={{
-          width: '100%',
-          height: '12px',
-          borderRadius: '6px',
-          background: 'rgba(255,255,255,0.08)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            width: `${pct}%`,
-            height: '100%',
-            borderRadius: '6px',
-            background: color,
-            transition: 'width 0.8s cubic-bezier(0.4,0,0.2,1)',
-            boxShadow: `0 0 12px ${color}88`,
-          }}
+      <div className="prob-track">
+        <div 
+          className="prob-fill" 
+          style={{ width: `${pct}%`, background: color, boxShadow: `0 0 20px ${color}44` }} 
         />
       </div>
-      <div
-        style={{
-          marginTop: '0.75rem',
-          display: 'inline-block',
-          padding: '0.3rem 0.85rem',
-          borderRadius: '999px',
-          fontWeight: 700,
-          fontSize: '0.8rem',
-          letterSpacing: '0.08em',
-          background: `${color}22`,
-          color,
-          border: `1px solid ${color}55`,
-        }}
-      >
-        {verdict === 'CLEAN'
-          ? '✅ CLEAN'
-          : verdict === 'SUSPICIOUS'
-          ? '⚠️ SUSPICIOUS'
-          : '🚨 LIKELY STEGO'}
+      <div className="verdict-banner" style={{ background: `${color}15`, color, borderColor: `${color}33` }}>
+        {verdict === 'CLEAN' ? '✅ SYSTEM CLEAN' : verdict === 'SUSPICIOUS' ? '⚠️ ANOMALIES DETECTED' : '🚨 HIGH PROBABILITY STEGO'}
       </div>
     </div>
   );
@@ -212,10 +178,14 @@ export default function AnalyzeTab() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* Drop zone */}
+    <div className="analyze-container">
+      <div className="tab-header">
+        <h2>Steganographic Analysis</h2>
+        <p>Detect hidden payloads using multi-modal feature extraction and neural heuristics.</p>
+      </div>
+
       <div
-        className={`file-drop-area ${isDragging ? 'drag-over' : ''}`}
+        className={`file-drop-area ${isDragging ? 'drag-over' : ''} ${file ? 'has-file' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -232,48 +202,54 @@ export default function AnalyzeTab() {
           accept="image/png,image/bmp,image/tiff,audio/wav,audio/flac,video/mp4,video/avi"
         />
         {file ? (
-          <p style={{ color: '#38bdf8', fontWeight: 600 }}>
-            Selected: {file.name}
-          </p>
+          <div className="selected-file-info">
+            <span className="file-icon">📄</span>
+            <div className="details">
+              <strong>{file.name}</strong>
+              <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • {file.type || 'Unknown Type'}</span>
+            </div>
+            <button className="change-btn" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Change</button>
+          </div>
         ) : (
-          <>
-            <p>Drag &amp; drop any media file, or click to select.</p>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.25rem' }}>
-              Supports PNG, BMP, TIFF, WAV, FLAC, MP4, AVI
-            </p>
-          </>
+          <div className="drop-prompt">
+            <div className="pulse-icon">📂</div>
+            <p>Drop file here or <span>browse local storage</span></p>
+            <span className="hint">PNG, BMP, WAV, MP4, AVI (Max 50MB)</span>
+          </div>
         )}
       </div>
 
-      <button type="submit" disabled={loading} style={{ marginTop: '1rem', position: 'relative' }}>
+      <button 
+        onClick={handleSubmit} 
+        disabled={loading || !file} 
+        className={loading ? 'loading' : ''}
+      >
         {loading ? (
-          <div className="button-loading">
-            <div className="spinner"></div>
-            <span>Analysing...</span>
-          </div>
-        ) : '🔍 Analyse for Steganography'}
+          <>
+            <div className="spinner" />
+            Running Neural Analysis...
+          </>
+        ) : (
+          <>
+            <span className="icon">🔍</span> Start Analysis
+          </>
+        )}
       </button>
 
+      {error && <div className="error-message">{error}</div>}
+
       {result && (
-        <div id="analysis-report" style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <p style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>
-              Media type detected: <strong style={{ color: '#94a3b8' }}>{result.media_type}</strong>
-            </p>
-            <button 
-              type="button" 
-              onClick={exportPDF}
-              style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#e2e8f0', borderRadius: '6px' }}
-            >
-              📥 Download PDF Report
+        <div id="analysis-report" className="results-container animate-in">
+          <div className="results-header">
+            <span className="media-type-badge">{result.media_type}</span>
+            <button className="export-btn" onClick={exportPDF}>
+              Download Report
             </button>
           </div>
           <ProbabilityBar probability={result.probability} verdict={result.verdict} />
           <FeatureBreakdown features={result.features} />
         </div>
       )}
-
-      {error && <div className="error-message" style={{ marginTop: '1rem' }}>{error}</div>}
-    </form>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import asyncio
 import torch
 import json
 from core.neural.trainer import GANTrainer
+from starlette.websockets import WebSocketState
 
 # store active training sessions
 active_sessions = {}
@@ -47,6 +48,13 @@ async def training_ws_endpoint(
 
     except WebSocketDisconnect:
         print(f"[WS] Client disconnected from run {run_id}")
+    except Exception as exc:
+        print(f"[WS] Error in run {run_id}: {exc}")
     finally:
         active_sessions.pop(run_id, None)
-        await websocket.close()
+        # Check if the websocket is still open before trying to close it.
+        if websocket.client_state != WebSocketState.DISCONNECTED:
+            try:
+                await websocket.close()
+            except Exception:
+                pass
