@@ -181,11 +181,11 @@ class AudioAnalyzer:
             verdict = "LIKELY_STEGO"
 
         return {
-            "probability": round(probability, 4),
+            "probability": round(probability, 4),        # type: ignore[call-overload]
             "verdict": verdict,
             "features": {
-                "mfcc_variance":     round(feat_mfcc, 4),
-                "lsb_noise":         round(feat_lsb, 4),
-                "spectral_flatness": round(feat_flat, 4),
+                "mfcc_variance":     round(feat_mfcc, 4),  # type: ignore[call-overload]
+                "lsb_noise":         round(feat_lsb, 4),   # type: ignore[call-overload]
+                "spectral_flatness": round(feat_flat, 4),  # type: ignore[call-overload]
             },
         }

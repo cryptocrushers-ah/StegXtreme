@@ -1,0 +1,28 @@
+{
+  "python.defaultInterpreterPath": "c:\\Users\\SHASHI\\StegXtreme\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "c:\\Users\\SHASHI\\StegXtreme"
+  ],
+  "python.autoComplete.extraPaths": [
+    "c:\\Users\\SHASHI\\StegXtreme"
+  ],
+  "python.analysis.venvPath": "c:\\Users\\SHASHI\\StegXtreme",
+  "python.analysis.venv": ".venv",
+  "python.venvPath": "c:\\Users\\SHASHI\\StegXtreme",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingModuleSource": "none",
+    "reportMissingImports": "error"
+  },
+  "python.analysis.include": [
+    "backend",
+    "core",
+    "tests"
+  ],
+  "python.analysis.exclude": [
+    "**/.venv"
+  ],
+  "pyre2.enable": false,
+  "python.analysis.ignore": []
+}

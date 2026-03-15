@@ -69,6 +69,7 @@ async def analyze_file(file: UploadFile = File(...)) -> Dict[str, Any]:
     ext = os.path.splitext(file.filename or "file")[1]
     uid = str(uuid.uuid4())
     in_path = os.path.join(TEMP_DIR, f"{uid}_analyze{ext}")
+    result: Dict[str, Any] = {}
 
     try:
         with open(in_path, "wb") as buf:
@@ -82,7 +83,6 @@ async def analyze_file(file: UploadFile = File(...)) -> Dict[str, Any]:
             result = VideoAnalyzer.analyze(in_path)
 
         result["media_type"] = media_type
-        return result
 
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -90,8 +90,10 @@ async def analyze_file(file: UploadFile = File(...)) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     finally:
         # Clean up temp file
-        if os.path.exists(in_path):
+        if in_path and os.path.exists(in_path):
             try:
                 os.remove(in_path)
             except OSError:
                 pass
+
+    return result

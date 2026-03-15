@@ -1,4 +1,4 @@
-import argon2
+import argon2.low_level
 
 def derive_key(password: str, salt: bytes) -> bytes:
     """Derives a 32-byte key from a password and salt using Argon2id."""

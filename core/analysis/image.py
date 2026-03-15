@@ -16,8 +16,8 @@ from __future__ import annotations
 import os
 from typing import Dict, Any
 
-import numpy as np
-from PIL import Image
+import numpy as np  # type: ignore[import-untyped]
+from PIL import Image  # type: ignore[import-untyped]
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -57,8 +57,9 @@ def _sample_pairs_score(channel: np.ndarray) -> float:
     flat = channel.ravel()
     a = flat[:-1].astype(np.int32)
     b = flat[1:].astype(np.int32)
-    diff = np.abs(a - b)
-    odd_ratio = float((diff % 2 == 1).mean())
+    diff: np.ndarray = np.abs(a - b)
+    odd_bits: np.ndarray = (diff % 2).astype(np.float32)
+    odd_ratio = float(odd_bits.mean())
     # Natural images have odd_ratio ≈ 0.5; embedding pushes it higher
     score = np.clip((odd_ratio - 0.5) * 4, 0.0, 1.0)
     return float(score)
@@ -154,13 +155,13 @@ class ImageAnalyzer:
             verdict = "LIKELY_STEGO"
 
         return {
-            "probability": round(probability, 4),
+            "probability": round(probability, 4),  # type: ignore[call-overload]
             "verdict": verdict,
             "features": {
-                "chi_square_r": round(chi_r, 4),
-                "chi_square_g": round(chi_g, 4),
-                "chi_square_b": round(chi_b, 4),
-                "sample_pairs": round(sp_score, 4),
-                "lsb_entropy":  round(lsb_ent, 4),
+                "chi_square_r": round(chi_r, 4),    # type: ignore[call-overload]
+                "chi_square_g": round(chi_g, 4),    # type: ignore[call-overload]
+                "chi_square_b": round(chi_b, 4),    # type: ignore[call-overload]
+                "sample_pairs": round(sp_score, 4), # type: ignore[call-overload]
+                "lsb_entropy":  round(lsb_ent, 4),  # type: ignore[call-overload]
             },
         }

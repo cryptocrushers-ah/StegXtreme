@@ -11,6 +11,6 @@ def aes_encrypt(data: bytes, key: bytes) -> bytes:
 def aes_decrypt(data: bytes, key: bytes) -> bytes:
     """Decrypts data using AES-256-GCM. Expects 12-byte nonce at the beginning."""
     aesgcm = AESGCM(key)
-    nonce = data[:12]
-    ciphertext = data[12:]
+    nonce = data[:12]  # type: ignore[index]
+    ciphertext = data[12:]  # type: ignore[index]
     return aesgcm.decrypt(nonce, ciphertext, None)

@@ -20,8 +20,8 @@ import math
 import os
 from typing import Dict, Any
 
-import cv2
-import numpy as np
+import cv2  # type: ignore[import-untyped]
+import numpy as np  # type: ignore[import-untyped]
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -51,16 +51,20 @@ def _dct_ac_energy(gray: np.ndarray) -> float:
     h, w = gray.shape
     h8, w8 = (h // 8) * 8, (w // 8) * 8
     patch = gray[:h8, :w8].astype(np.float32)
-    total, count = 0.0, 0
-    for r in range(0, h8, 8):
-        for c in range(0, w8, 8):
-            block = patch[r:r+8, c:c+8]
-            dct_block = cv2.dct(block)
-            ac = dct_block.copy()
-            ac[0, 0] = 0.0          # zero out DC
-            total += float(np.abs(ac).mean())
-            count += 1
-    return total / max(count, 1)
+
+    def _block_ac_energy(r: int, c: int) -> float:
+        block = patch[r:r+8, c:c+8]
+        dct_block = cv2.dct(block)
+        ac = dct_block.copy()
+        ac[0, 0] = 0.0          # zero out DC
+        return float(np.abs(ac).mean())
+
+    energies = [
+        _block_ac_energy(r, c)
+        for r in range(0, h8, 8)
+        for c in range(0, w8, 8)
+    ]
+    return sum(energies) / max(len(energies), 1)
 
 
 def _chi_square_lsb(gray: np.ndarray) -> float:
@@ -202,12 +206,12 @@ class VideoAnalyzer:
             verdict = "LIKELY_STEGO"
 
         return {
-            "probability": round(probability, 4),
+            "probability": round(probability, 4),          # type: ignore[call-overload]
             "verdict": verdict,
             "features": {
-                "lsb_noise":      round(feat_lsb, 4),
-                "dct_ac_energy":  round(feat_dct, 4),
-                "chi_square_lsb": round(feat_chi, 4),
-                "frame_delta_cv": round(feat_delta_cv, 4),
+                "lsb_noise":      round(feat_lsb, 4),      # type: ignore[call-overload]
+                "dct_ac_energy":  round(feat_dct, 4),      # type: ignore[call-overload]
+                "chi_square_lsb": round(feat_chi, 4),      # type: ignore[call-overload]
+                "frame_delta_cv": round(feat_delta_cv, 4), # type: ignore[call-overload]
             },
         }

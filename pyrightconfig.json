@@ -1,0 +1,23 @@
+{
+  "venvPath": "c:\\Users\\SHASHI\\StegXtreme",
+  "venv": ".venv",
+  "pythonVersion": "3.14",
+  "pythonPlatform": "Windows",
+  "extraPaths": [
+    "c:\\Users\\SHASHI\\StegXtreme"
+  ],
+  "include": [
+    "backend",
+    "core",
+    "tests"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "**/.venv",
+    "**/node_modules"
+  ],
+  "typeCheckingMode": "basic",
+  "useLibraryCodeForTypes": true,
+  "reportMissingImports": "error",
+  "reportMissingModuleSource": "none"
+}
