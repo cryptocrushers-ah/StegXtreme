@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { apiRequest } from '../utils/api';
 
 type VisMode = 'timeline' | 'bitplane' | 'heatmap';
 
@@ -56,17 +57,10 @@ export default function VisualiseTab() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/visualise/${mode}`, {
+      const data = await apiRequest(`/api/visualise/${mode}`, {
         method: 'POST',
         body: formData,
       });
-      
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || 'Visualisation failed');
-      }
-      
-      const data = await response.json();
       setImageSrc(data.image_base64);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unknown error');

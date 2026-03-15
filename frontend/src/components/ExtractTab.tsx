@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { apiRequest } from '../utils/api';
 
 export default function ExtractTab() {
   const [file, setFile] = useState<File | null>(null);
@@ -43,17 +44,10 @@ export default function ExtractTab() {
     formData.append('password', password);
 
     try {
-      const response = await fetch('http://localhost:8000/api/extract', {
+      const data = await apiRequest('/api/extract', {
         method: 'POST',
         body: formData,
       });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || 'Failed to extract');
-      }
-
-      const data = await response.json();
       setExtractedPayload(data.payload);
       
     } catch (err: any) {
