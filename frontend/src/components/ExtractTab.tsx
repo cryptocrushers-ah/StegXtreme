@@ -36,6 +36,10 @@ export default function ExtractTab() {
       setError('Please provide the stego file and the password.');
       return;
     }
+    if (file && file.size > 500 * 1024 * 1024) {
+      setError('File size exceeds the 500MB limit.');
+      return;
+    }
     setError('');
     setExtractedPayload('');
     setLoading(true);
@@ -84,7 +88,9 @@ export default function ExtractTab() {
         />
         {file ? (
           <div className="selected-file-info">
-            <span className="file-icon">🕵️</span>
+            <span className="file-icon">
+              {file.type.startsWith('image/') ? '🖼️' : file.type.startsWith('video/') ? '🎬' : file.type.startsWith('audio/') ? '🔊' : '🕵️'}
+            </span>
             <div className="details">
               <strong>{file.name}</strong>
               <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • Stego-Carrier</span>
@@ -94,7 +100,7 @@ export default function ExtractTab() {
         ) : (
           <div className="drop-prompt">
             <div className="pulse-icon">📂</div>
-            <p>Drop stego-media or <span>click to browse</span></p>
+            <p>Upload a stego file to <span>reveal hidden content</span></p>
             <span className="hint">Supports encrypted PNG, WAV, MP4 carriers</span>
           </div>
         )}

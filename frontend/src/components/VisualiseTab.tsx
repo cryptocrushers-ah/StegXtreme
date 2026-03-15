@@ -46,6 +46,10 @@ export default function VisualiseTab() {
       setError(`${mode} mode requires an image file.`);
       return;
     }
+    if (file && file.size > 500 * 1024 * 1024) {
+      setError('Visualisation limit is 500MB per file.');
+      return;
+    }
 
     setError('');
     setImageSrc(null);
@@ -96,7 +100,7 @@ export default function VisualiseTab() {
         />
         {file ? (
           <div className="selected-file-info">
-            <span className="file-icon">{file.type.startsWith('video/') ? '🎬' : '🖼️'}</span>
+            <span className="file-icon">{file.type.startsWith('video/') ? '🎬' : file.type.startsWith('image/') ? '🖼️' : '📁'}</span>
             <div className="details">
               <strong>{file.name}</strong>
               <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • {file.type || 'Unknown Type'}</span>
@@ -106,8 +110,8 @@ export default function VisualiseTab() {
         ) : (
           <div className="drop-prompt">
             <div className="pulse-icon">🎞️</div>
-            <p>Drop media or <span>click to select</span></p>
-            <span className="hint">Images & Videos supported</span>
+            <p>Upload media to see <span>advanced signal analysis</span></p>
+            <span className="hint">Images & Videos supported (Max 500MB)</span>
           </div>
         )}
       </div>

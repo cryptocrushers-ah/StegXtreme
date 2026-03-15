@@ -138,6 +138,10 @@ export default function AnalyzeTab() {
       setError('Please select a media file to analyse.');
       return;
     }
+    if (file && file.size > 500 * 1024 * 1024) {
+      setError('Analysis limit is 500MB per file.');
+      return;
+    }
     setError('');
     setResult(null);
     setLoading(true);
@@ -203,7 +207,9 @@ export default function AnalyzeTab() {
         />
         {file ? (
           <div className="selected-file-info">
-            <span className="file-icon">📄</span>
+            <span className="file-icon">
+              {file.type.startsWith('image/') ? '🖼️' : file.type.startsWith('video/') ? '🎬' : file.type.startsWith('audio/') ? '🔊' : '📄'}
+            </span>
             <div className="details">
               <strong>{file.name}</strong>
               <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • {file.type || 'Unknown Type'}</span>
@@ -213,8 +219,8 @@ export default function AnalyzeTab() {
         ) : (
           <div className="drop-prompt">
             <div className="pulse-icon">📂</div>
-            <p>Drop file here or <span>browse local storage</span></p>
-            <span className="hint">PNG, BMP, WAV, MP4, AVI (Max 50MB)</span>
+            <p>Upload any file to <span>check for hidden data</span></p>
+            <span className="hint">PNG, BMP, WAV, MP4, AVI (Max 500MB)</span>
           </div>
         )}
       </div>

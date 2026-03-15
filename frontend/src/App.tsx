@@ -6,11 +6,11 @@ import ExtractTab from './components/ExtractTab';
 import AnalyzeTab from './components/AnalyzeTab';
 import VisualiseTab from './components/VisualiseTab';
 import TunnelTab from './components/TunnelTab';
-import TrainTab from './components/TrainTab';
 import LandingTab from './components/LandingTab';
+import ModelStats from './components/ModelStats';
 import './App.css';
 
-type Tab = 'home' | 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel' | 'train';
+type Tab = 'home' | 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('embed');
@@ -40,6 +40,7 @@ function App() {
         <h1 onClick={() => setActiveTab('embed')} style={{cursor: 'pointer'}}>StegXtreme</h1>
         <p className="app-subtitle">Advanced Steganography & Detection Suite</p>
         <div className="header-actions">
+          <ModelStats />
           <button 
             onClick={handleLogout} 
             className="logout-btn"
@@ -85,13 +86,6 @@ function App() {
         >
           <span className="icon">🚀</span> Tunnel
         </button>
-        <button
-          type="button"
-          className={`tab-btn ${activeTab === 'train' ? 'active' : ''}`}
-          onClick={() => setActiveTab('train')}
-        >
-          <span className="icon">🧠</span> Train
-        </button>
       </nav>
 
       <div className="glass-panel">
@@ -100,7 +94,6 @@ function App() {
         {activeTab === 'analyze' && <AnalyzeTab />}
         {activeTab === 'visualise' && <VisualiseTab />}
         {activeTab === 'tunnel' && <TunnelTab />}
-        {activeTab === 'train' && <TrainTab />}
       </div>
     </div>
   );

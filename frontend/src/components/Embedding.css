@@ -73,3 +73,45 @@
     grid-template-columns: 1fr;
   }
 }
+
+.success-area {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.success-icon {
+  font-size: 1.5rem;
+}
+
+.success-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.success-info strong {
+  color: #34d399;
+  font-size: 0.95rem;
+}
+
+.success-info span {
+  color: #a1a1aa;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.download-feedback-btn {
+  width: auto !important;
+  margin-top: 0 !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  padding: 0.6rem 1.2rem !important;
+  border-radius: 8px !important;
+}
