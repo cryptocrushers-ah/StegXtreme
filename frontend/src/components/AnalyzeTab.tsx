@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface FeatureScore {
   label: string;
@@ -194,6 +196,25 @@ export default function AnalyzeTab() {
     }
   };
 
+  const exportPDF = async () => {
+    if (!result) return;
+    const element = document.getElementById('analysis-report');
+    if (!element) return;
+
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#0f172a',
+      scale: 2,
+    });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`stegxtreme_report_${Date.now()}.pdf`);
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       {/* Drop zone */}
@@ -233,10 +254,19 @@ export default function AnalyzeTab() {
       </button>
 
       {result && (
-        <div style={{ marginTop: '1rem' }}>
-          <p style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-            Media type detected: <strong style={{ color: '#94a3b8' }}>{result.media_type}</strong>
-          </p>
+        <div id="analysis-report" style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>
+              Media type detected: <strong style={{ color: '#94a3b8' }}>{result.media_type}</strong>
+            </p>
+            <button 
+              type="button" 
+              onClick={exportPDF}
+              style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#e2e8f0', borderRadius: '6px' }}
+            >
+              📥 Download PDF Report
+            </button>
+          </div>
           <ProbabilityBar probability={result.probability} verdict={result.verdict} />
           <FeatureBreakdown features={result.features} />
         </div>
