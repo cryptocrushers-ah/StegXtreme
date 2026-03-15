@@ -2,10 +2,15 @@ __pycache__/
 *.pyc
 .env
 stegx.db
-storage/
 node_modules/
 dist/
 .venv/
-*.pt
-*.onnx
-.vscode/ 
+venv/
+.vscode/
+
+# storage — ignore data and uploads but keep models
+storage/training_data/
+storage/uploads/
+storage/outputs/
+
+# keep storage/models/ tracked for Dev B

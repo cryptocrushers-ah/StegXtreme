@@ -1,0 +1,310 @@
+
+pytorch2.10.0+cu130:šo
+Ø
+cover_Y
+payload_bitscatnode_cat"Concat*
+axis JC
+	namespace6: core.neural.hider.HiderNetwork/cat: aten.cat.defaultJX
+pkg.torch.onnx.class_hierarchy6['core.neural.hider.HiderNetwork', 'aten.cat.default']J•
+pkg.torch.onnx.fx_node{%cat : [num_users=1] = call_function[target=torch.ops.aten.cat.default](args = ([%cover_y, %payload_bits], 1), kwargs = {})J)
+pkg.torch.onnx.name_scopes['', 'cat']J¸
+pkg.torch.onnx.stack_trace™File "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 24, in forward
+    x = torch.cat([cover_Y, payload_bits], dim=1)  # (B, 2, H, W)
+Í	
+cat
+encoder.0.weight
+encoder.0.biasconv2dnode_conv2d"Conv*
+group *
+auto_pad"NOTSET *
+	dilations@@ *
+strides@@ *
+pads@@@@ J¡
+	namespace“: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.0: torch.nn.modules.conv.Conv2d/conv2d: aten.conv2d.defaultJ¥
+pkg.torch.onnx.class_hierarchy‚['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.conv.Conv2d', 'aten.conv2d.default']J¼
+pkg.torch.onnx.fx_node¡%conv2d : [num_users=1] = call_function[target=torch.ops.aten.conv2d.default](args = (%cat, %p_encoder_0_weight, %p_encoder_0_bias, [1, 1], [1, 1]), kwargs = {})JD
+pkg.torch.onnx.name_scopes&['', 'encoder', 'encoder.0', 'conv2d']JÙ
+pkg.torch.onnx.stack_traceºFile "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\conv.py", line 553, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+‹
+conv2drelu	node_relu"ReluJ¡
+	namespace“: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.1: torch.nn.modules.activation.ReLU/relu: aten.relu.defaultJ§
+pkg.torch.onnx.class_hierarchy„['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Jƒ
+pkg.torch.onnx.fx_nodei%relu : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%conv2d,), kwargs = {})JB
+pkg.torch.onnx.name_scopes$['', 'encoder', 'encoder.1', 'relu']JÑ
+pkg.torch.onnx.stack_trace²File "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\activation.py", line 143, in forward
+    return F.relu(input, inplace=self.inplace)
+Ù	
+relu
+encoder.2.weight
+encoder.2.biasconv2d_1node_conv2d_1"Conv*
+group *
+auto_pad"NOTSET *
+	dilations@@ *
+strides@@ *
+pads@@@@ J£
+	namespace•: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.2: torch.nn.modules.conv.Conv2d/conv2d_1: aten.conv2d.defaultJ¥
+pkg.torch.onnx.class_hierarchy‚['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.conv.Conv2d', 'aten.conv2d.default']J¿
+pkg.torch.onnx.fx_node¤%conv2d_1 : [num_users=1] = call_function[target=torch.ops.aten.conv2d.default](args = (%relu, %p_encoder_2_weight, %p_encoder_2_bias, [1, 1], [1, 1]), kwargs = {})JF
+pkg.torch.onnx.name_scopes(['', 'encoder', 'encoder.2', 'conv2d_1']JÙ
+pkg.torch.onnx.stack_traceºFile "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\conv.py", line 553, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+™
+conv2d_1relu_1node_relu_1"ReluJ£
+	namespace•: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.3: torch.nn.modules.activation.ReLU/relu_1: aten.relu.defaultJ§
+pkg.torch.onnx.class_hierarchy„['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']J‡
+pkg.torch.onnx.fx_nodem%relu_1 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%conv2d_1,), kwargs = {})JD
+pkg.torch.onnx.name_scopes&['', 'encoder', 'encoder.3', 'relu_1']JÑ
+pkg.torch.onnx.stack_trace²File "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\activation.py", line 143, in forward
+    return F.relu(input, inplace=self.inplace)
+Ý	
+relu_1
+encoder.4.weight
+encoder.4.biasconv2d_2node_conv2d_2"Conv*
+group *
+auto_pad"NOTSET *
+	dilations@@ *
+strides@@ *
+pads@@@@ J£
+	namespace•: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.4: torch.nn.modules.conv.Conv2d/conv2d_2: aten.conv2d.defaultJ¥
+pkg.torch.onnx.class_hierarchy‚['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.conv.Conv2d', 'aten.conv2d.default']JÁ
+pkg.torch.onnx.fx_node¦%conv2d_2 : [num_users=1] = call_function[target=torch.ops.aten.conv2d.default](args = (%relu_1, %p_encoder_4_weight, %p_encoder_4_bias, [1, 1], [1, 1]), kwargs = {})JF
+pkg.torch.onnx.name_scopes(['', 'encoder', 'encoder.4', 'conv2d_2']JÙ
+pkg.torch.onnx.stack_traceºFile "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\conv.py", line 553, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+™
+conv2d_2relu_2node_relu_2"ReluJ£
+	namespace•: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.5: torch.nn.modules.activation.ReLU/relu_2: aten.relu.defaultJ§
+pkg.torch.onnx.class_hierarchy„['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']J‡
+pkg.torch.onnx.fx_nodem%relu_2 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%conv2d_2,), kwargs = {})JD
+pkg.torch.onnx.name_scopes&['', 'encoder', 'encoder.5', 'relu_2']JÑ
+pkg.torch.onnx.stack_trace²File "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\activation.py", line 143, in forward
+    return F.relu(input, inplace=self.inplace)
+Ý	
+relu_2
+encoder.6.weight
+encoder.6.biasconv2d_3node_conv2d_3"Conv*
+group *
+auto_pad"NOTSET *
+	dilations@@ *
+strides@@ *
+pads@@@@ J£
+	namespace•: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.6: torch.nn.modules.conv.Conv2d/conv2d_3: aten.conv2d.defaultJ¥
+pkg.torch.onnx.class_hierarchy‚['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.conv.Conv2d', 'aten.conv2d.default']JÁ
+pkg.torch.onnx.fx_node¦%conv2d_3 : [num_users=1] = call_function[target=torch.ops.aten.conv2d.default](args = (%relu_2, %p_encoder_6_weight, %p_encoder_6_bias, [1, 1], [1, 1]), kwargs = {})JF
+pkg.torch.onnx.name_scopes(['', 'encoder', 'encoder.6', 'conv2d_3']JÙ
+pkg.torch.onnx.stack_traceºFile "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\conv.py", line 553, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+
+conv2d_3residual	node_tanh"TanhJ¡
+	namespace“: core.neural.hider.HiderNetwork/encoder: torch.nn.modules.container.Sequential/encoder.7: torch.nn.modules.activation.Tanh/tanh: aten.tanh.defaultJ§
+pkg.torch.onnx.class_hierarchy„['core.neural.hider.HiderNetwork', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.Tanh', 'aten.tanh.default']J…
+pkg.torch.onnx.fx_nodek%tanh : [num_users=1] = call_function[target=torch.ops.aten.tanh.default](args = (%conv2d_3,), kwargs = {})JB
+pkg.torch.onnx.name_scopes$['', 'encoder', 'encoder.7', 'tanh']J¿
+pkg.torch.onnx.stack_trace File "C:\Users\adity\Desktop\Steg\StegXtreme\core\neural\hider.py", line 25, in forward
+    return self.encoder(x)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+  File "C:\Users\adity\Desktop\Steg\StegXtreme\venv\Lib\site-packages\torch\nn\modules\activation.py", line 429, in forward
+    return torch.tanh(input)
+main_graph*[@Bencoder.0.weightj
+locationhider.onnx.dataj
+offset2304j
+length4608p*—@Bencoder.0.biasJ€”:¾Þìƒ½Dm½Ñïf>¼M½F5>¶¾[><B_=â?>bð˜½Ð@¥½	‡*¾ÕÂT>x|½¢Cª=œ8=‹/L>8¢	½/k¾/;>6^Ï=ïû=0š¾ðÓ½A3@>$>nS´=:&Ø=”@¾þ×‘=É™Y>Ð½®Á¤=@¾„-#=ú1½OY>Š%Ý=Šèœ=ðN<´=Cæ¾´\=Nƒ¼`³…½åod>Næ¼¤½ÜÅ[½¼v½\ž¾Pƒ¾>`,Æ½{Y>ë)\>³I/>Ðt¾do½ds=÷¯¾‰&?>æŽG¾*]@@Bencoder.2.weightj
+locationhider.onnx.dataj
+offset6912j
+length147456p*—@Bencoder.2.biasJ€À2º
+×¾<æ=dç¼Ž¶ƒ<Žî'½ôj+<N¯ª<HÃ±»T4¼ÄX<ãÃ%=[#„¼É|=Ð^ »È¡»„}*¼Š…Ô<x¾ç;âÝÌ<&ýˆ¼´!=›¬ =2nÈ<Š~¼ä½à)©ºb¬ü<€Uw; ˜·;€U´»£Ô(½ø‡Ý» 5l<71=àV†¼ðÎ¼äØ¼ô$¼ø
+·; f<Mv=¶N‹<ì: ¼’s$½Ë=¶åë¼˜m­¼5­'=(ðÀ»ž9‰<PÑ½ÓM=T-$<Tö]< 9ú‚½<ðÈZ<üf	<,¨½
+Ç<‚	˜< ,ž;æäÿ<*_@@Bencoder.4.weightj
+locationhider.onnx.dataj
+offset154368j
+length147456p*—@Bencoder.4.biasJ€— *½“á=l7<tö<0&~<-¡#=¡µ=ZÃ<0z<>öì<·(&½¶i½¼øÌ½Ô('<à Ò¼,Q<<pmì¼\“c<p±à¼³zõ¼¹=,> <ƒã=Ì(!¼q ½ t»»K!Ó¼.F¸<`Æ³»A½è¬;O =îHí<Ügk¼€`‘<r—<Â~»Hÿ…<¾ä¼@Ãí;ëp½ºÅå<Eþ)=ƒù¼ü½‚b½†Ó»¼À:P¼Ì´x<RÒ½‹½`z•¼g?=´95<"RÊ<¶½ð–$¼tÅ'¼Zº» mJ<â›Ô<Y =~è'½*X@Bencoder.6.weightj
+locationhider.onnx.dataj
+offset0j
+length2304p*Bencoder.6.biasJkö½ZÍ
+cover_Y
+
+
+
+@
+@"=
+/pkg.torch.export.graph_signature.InputSpec.kind
+USER_INPUT"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone",
+!pkg.torch.onnx.original_node_namecover_yZ×
+payload_bits
+
+
+
+@
+@"=
+/pkg.torch.export.graph_signature.InputSpec.kind
+USER_INPUT"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"1
+!pkg.torch.onnx.original_node_namepayload_bitsbŽ
+residual
+
+
+
+@
+@"?
+0pkg.torch.export.graph_signature.OutputSpec.kindUSER_OUTPUT")
+!pkg.torch.onnx.original_node_nametanhjà
+encoder.0.weight
+
+@
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"7
+!pkg.torch.onnx.original_node_namep_encoder_0_weightjÐ
+encoder.0.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"5
+!pkg.torch.onnx.original_node_namep_encoder_0_biasjà
+encoder.2.weight
+
+@
+@
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"7
+!pkg.torch.onnx.original_node_namep_encoder_2_weightjÐ
+encoder.2.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"5
+!pkg.torch.onnx.original_node_namep_encoder_2_biasjà
+encoder.4.weight
+
+@
+@
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"7
+!pkg.torch.onnx.original_node_namep_encoder_4_weightjÐ
+encoder.4.bias
+
+
+@"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"5
+!pkg.torch.onnx.original_node_namep_encoder_4_biasjà
+encoder.6.weight
+
+
+@
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"7
+!pkg.torch.onnx.original_node_namep_encoder_6_weightjÐ
+encoder.6.bias
+
+
+"<
+/pkg.torch.export.graph_signature.InputSpec.kind	PARAMETER"=
+5pkg.torch.export.graph_signature.InputSpec.persistentNone"5
+!pkg.torch.onnx.original_node_namep_encoder_6_biasj
+cat
+
+
+
+@
+@j 
+conv2d
+
+
+@
+@
+@j
+relu
+
+
+@
+@
+@j"
+conv2d_1
+
+
+@
+@
+@j 
+relu_1
+
+
+@
+@
+@j"
+conv2d_2
+
+
+@
+@
+@j 
+relu_2
+
+
+@
+@
+@j"
+conv2d_3
+
+
+
+@
+@‚¹
+0pkg.torch.export.ExportedProgram.graph_signature„
+# inputs
+p_encoder_0_weight: PARAMETER target='encoder.0.weight'
+p_encoder_0_bias: PARAMETER target='encoder.0.bias'
+p_encoder_2_weight: PARAMETER target='encoder.2.weight'
+p_encoder_2_bias: PARAMETER target='encoder.2.bias'
+p_encoder_4_weight: PARAMETER target='encoder.4.weight'
+p_encoder_4_bias: PARAMETER target='encoder.4.bias'
+p_encoder_6_weight: PARAMETER target='encoder.6.weight'
+p_encoder_6_bias: PARAMETER target='encoder.6.bias'
+cover_y: USER_INPUT
+payload_bits: USER_INPUT
+
+# outputs
+tanh: USER_OUTPUT
+‚8
+2pkg.torch.export.ExportedProgram.range_constraints{}B
+ 
