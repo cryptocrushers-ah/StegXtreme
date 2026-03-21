@@ -12,6 +12,7 @@ venv/
 storage/training_data/
 storage/uploads/
 storage/outputs/
+storage/temp/
 
 # keep storage/models/ tracked for Dev B
 storage/models/*.data 

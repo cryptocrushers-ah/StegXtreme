@@ -6,6 +6,7 @@ from core.crypto.cipher import aes_encrypt, aes_decrypt
 
 class VideoBackend:
     @classmethod
+    def embed(cls, cover_path: str, out_path: str, payload: bytes, password: str, algorithm: str = "default") -> str:
         # Enforce .avi for lossless FFV1
         if not out_path.lower().endswith('.avi'):
             out_path = os.path.splitext(out_path)[0] + '.avi'
