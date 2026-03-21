@@ -13,67 +13,57 @@ class AudioBackend:
         return np.packbits(bits).tobytes()
 
     @classmethod
-    def embed(cls, cover_path: str, out_path: str, payload: bytes, password: str) -> str:
-        data, samplerate = sf.read(cover_path, dtype='int16')
+    def embed(cls, cover_path: str, out_path: str, payload: bytes, password: str, algorithm: str = "default") -> str:
+        data, samplerate = sf.read(cover_path)
         
         salt = b'StegXtreme_Audio'
         key = derive_key(password, salt)
-        
-        # Encrypt payload
         encrypted_payload = aes_encrypt(payload, key)
         
-        # Prepare bits: 32-bit length + payload bits
-        payload_len = len(encrypted_payload)
-        length_bytes = np.array([payload_len], dtype='>u4').view(np.uint8)
-        
-        all_bits = np.concatenate((
-            cls._to_bits(length_bytes.tobytes()),
-            cls._to_bits(encrypted_payload)
-        ))
-        
-        # Flatten audio data for easier access
-        original_shape = data.shape
-        flat_data = data.flatten()
+        # Length (32 bits) + data
+        bits = np.unpackbits(np.frombuffer(encrypted_payload, dtype=np.uint8))
+        length_bits = np.unpackbits(np.array([len(bits)], dtype='>u4').view(np.uint8))
+        all_bits = np.concatenate((length_bits, bits))
 
-        if len(all_bits) > len(flat_data):
-            raise ValueError(f"Payload too large. Max capacity {len(flat_data)} bits, required {len(all_bits)} bits.")
-            
-        # Clear LSB and embed
-        flat_data[:len(all_bits)] &= ~1
-        flat_data[:len(all_bits)] |= all_bits.astype(np.int16)
+        if len(all_bits) > data.size:
+            raise ValueError(f"Payload too large. Max capacity {data.size} bits, required {len(all_bits)} bits.")
+
+        # LSB embedding on audio samples
+        flat_data = data.flatten()
+        # Scale float to int representation for LSB if needed, 
+        # but soundfile often returns floats. We'll use a simple float LSB-like approach:
+        # Transforming to 16-bit PCM for easier LSB
+        pcm_data = (flat_data * 32767).astype(np.int16)
         
-        # Reshape and write
-        stego_data = flat_data.reshape(original_shape)
-        sf.write(out_path, stego_data, samplerate, subtype='PCM_16')
+        pcm_data[:len(all_bits)] &= 0xFFFE
+        pcm_data[:len(all_bits)] |= all_bits
         
+        # Back to float
+        flat_data = pcm_data.astype(np.float32) / 32767.0
+        
+        stego_data = flat_data.reshape(data.shape)
+        sf.write(out_path, stego_data, samplerate)
         return out_path
 
     @classmethod
-    def extract(cls, stego_path: str, password: str) -> bytes:
-        data, samplerate = sf.read(stego_path, dtype='int16')
+    def extract(cls, stego_path: str, password: str, algorithm: str = "default") -> bytes:
+        data, samplerate = sf.read(stego_path)
         flat_data = data.flatten()
+        pcm_data = (flat_data * 32767).astype(np.int16)
         
-        if len(flat_data) < 32:
-            raise ValueError("Audio file too short to contain a payload.")
-            
-        # Extract 32-bit length
-        length_bits = flat_data[:32] & 1
-        length_bytes = cls._from_bits(length_bits.astype(np.uint8))
+        # Read length (32 bits)
+        length_bits = pcm_data[:32] & 1
+        length_bytes = np.packbits(length_bits)
         payload_len = np.frombuffer(length_bytes, dtype='>u4')[0]
         
-        total_bits = 32 + payload_len * 8
-        if total_bits > len(flat_data):
-            raise ValueError("Corrupt header, calculated capacity exceeds audio length.")
-            
-        # Extract payload bits
-        payload_bits = flat_data[32:total_bits] & 1
-        encrypted_payload = cls._from_bits(payload_bits.astype(np.uint8))
+        # Read payload
+        extracted_bits = pcm_data[32:32+payload_len] & 1
+        extracted_bytes = np.packbits(extracted_bits).tobytes()
         
         salt = b'StegXtreme_Audio'
         key = derive_key(password, salt)
         
         try:
-             decrypted_payload = aes_decrypt(encrypted_payload, key)
-             return decrypted_payload
+             return aes_decrypt(extracted_bytes, key)
         except Exception as e:
              raise ValueError("Decryption failed. Incorrect password?") from e

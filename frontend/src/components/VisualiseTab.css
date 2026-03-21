@@ -102,7 +102,7 @@
 .config-value {
   color: #ffffff;
   font-weight: 700;
-  font-family: -apple-system, blinkmacsystemfont, sans-serif;
+  font-family: var(--font-main);
 }
 
 .premium-slider {

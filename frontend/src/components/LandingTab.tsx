@@ -433,7 +433,7 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
             <div className="team-card">
               <div className="team-avatar">🐙</div>
               <div className="team-role-tag">Repository</div>
-              <div className="team-name">github.com/<br />naag1/StegXtreme</div>
+              <div className="team-name">github.com/<br />Cryptocrushers-ah/StegXtreme</div>
               <p className="team-desc">Single mono-repo. Daily branch → PR → merge-on-green. Shared contract in <span className="mono">core/compute/backend.py</span> — signatures frozen after Day 1.</p>
               <span className="team-branch">main ← a/* · b/*</span>
             </div>
@@ -446,7 +446,7 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
           <span className="nav-dot"></span>
           StegXtreme
         </div>
-        <div className="footer-right">github.com/naag1/StegXtreme · v2.0</div>
+        <div className="footer-right">github.com/Cryptocrushers-ah/StegXtreme · v2.0</div>
       </footer>
     </div>
   );

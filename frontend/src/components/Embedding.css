@@ -56,7 +56,7 @@
   border-radius: 8px;
   padding: 1.5rem;
   color: #ffffff;
-  font-family: var(--sf-font);
+  font-family: var(--font-main);
   font-size: 0.9rem;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -114,4 +114,127 @@
   font-weight: 700 !important;
   padding: 0.6rem 1.2rem !important;
   border-radius: 8px !important;
+}
+
+/* Payload Type Selector */
+.payload-type-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.type-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #a1a1aa;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.type-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.type-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.payload-file-drop {
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.payload-file-drop:hover, .payload-file-drop.drag-over {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.payload-file-drop .icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.payload-file-drop p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #a1a1aa;
+}
+
+.payload-file-drop p span {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.payload-selected-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.payload-selected-info .icon {
+  font-size: 1.2rem;
+}
+
+.payload-selected-info .name {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.payload-selected-info .size {
+  color: #71717a;
+  font-size: 0.8rem;
+}
+
+.download-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #3b82f6 !important;
+  color: white !important;
+  padding: 0.6rem 1.2rem !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  text-decoration: none;
+  margin-top: 1rem !important;
+  width: auto !important;
+}
+
+.binary-warning {
+  display: block;
+  margin-top: 1rem;
+  color: #f59e0b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.format-tag {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  margin-left: 0.75rem;
+  letter-spacing: 0.05em;
 }

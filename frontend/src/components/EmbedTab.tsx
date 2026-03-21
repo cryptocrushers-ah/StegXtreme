@@ -6,12 +6,26 @@ export default function EmbedTab() {
   const [file, setFile] = useState<File | null>(null);
   const [payload, setPayload] = useState('');
   const [password, setPassword] = useState('');
-  const [algorithm, setAlgorithm] = useState('default');
+  const [payloadType, setPayloadType] = useState<'text' | 'file'>('text');
+  const [payloadFile, setPayloadFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingPayload, setIsDraggingPayload] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [successData, setSuccessData] = useState<{name: string, size: string} | null>(null);
+  const [successData, setSuccessData] = useState<{name: string, size: string, url: string} | null>(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const payloadInputRef = useRef<HTMLInputElement>(null);
+
+  // Cleanup Object URL to prevent memory leaks
+  React.useEffect(() => {
+    return () => {
+      if (successData?.url) {
+        window.URL.revokeObjectURL(successData.url);
+      }
+    };
+  }, [successData?.url]);
+
+  const [algorithm, setAlgorithm] = useState('default');
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -20,6 +34,16 @@ export default function EmbedTab() {
       setIsDragging(true);
     } else if (e.type === 'dragleave') {
       setIsDragging(false);
+    }
+  };
+
+  const handlePayloadDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsDraggingPayload(true);
+    } else if (e.type === 'dragleave') {
+      setIsDraggingPayload(false);
     }
   };
 
@@ -32,14 +56,26 @@ export default function EmbedTab() {
     }
   };
 
+  const handlePayloadDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingPayload(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setPayloadFile(e.dataTransfer.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !payload || !password) {
-      setError('Please provide file, payload, and password.');
+    const isFilePayload = payloadType === 'file';
+    
+    if (!file || (isFilePayload ? !payloadFile : !payload) || !password) {
+      setError(`Please provide a carrier file, a ${isFilePayload ? 'secret file' : 'message'}, and a password.`);
       return;
     }
+    
     if (file && file.size > 500 * 1024 * 1024) {
-      setError('File size exceeds the 500MB limit for neural processing.');
+      setError('Carrier file size exceeds the 500MB limit.');
       return;
     }
 
@@ -49,7 +85,11 @@ export default function EmbedTab() {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('text_payload', payload);
+    if (isFilePayload && payloadFile) {
+      formData.append('file_payload', payloadFile);
+    } else {
+      formData.append('text_payload', payload);
+    }
     formData.append('password', password);
     formData.append('algorithm', algorithm);
 
@@ -68,16 +108,22 @@ export default function EmbedTab() {
         const extMatch = file.name.match(/\.[0-9a-z]+$/i);
         const ext = extMatch ? extMatch[0] : '';
         const baseName = file.name.replace(ext, '');
-        a.download = `${baseName}_stego${ext}`;
+        const fileName = `${baseName}_stego${ext}`;
+
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
         setSuccessData({
-          name: `${baseName}_stego${ext}`,
-          size: (blob.size / (1024 * 1024)).toFixed(2) + ' MB'
+          name: fileName,
+          size: (blob.size / (1024 * 1024)).toFixed(2) + ' MB',
+          url: url
         });
         setFile(null);
         setPayload('');
+        setPayloadFile(null);
+        setPayloadType('text');
         setPassword('');
       }
     } catch (err: any) {
@@ -134,12 +180,63 @@ export default function EmbedTab() {
       <div className="injection-dashboard glass-panel">
         <div className="form-group">
           <label>Covert Payload (Target Sequence)</label>
-          <textarea 
-            rows={4}
-            value={payload}
-            onChange={(e) => setPayload(e.target.value)}
-            placeholder="Enter the secret message to be serialized into the carrier..."
-          />
+          
+          <div className="payload-type-selector">
+            <button 
+              className={`type-btn ${payloadType === 'text' ? 'active' : ''}`}
+              onClick={() => setPayloadType('text')}
+            >
+              Text Message
+            </button>
+            <button 
+              className={`type-btn ${payloadType === 'file' ? 'active' : ''}`}
+              onClick={() => setPayloadType('file')}
+            >
+              File Payload
+            </button>
+          </div>
+
+          {payloadType === 'text' ? (
+            <textarea 
+              rows={4}
+              value={payload}
+              onChange={(e) => setPayload(e.target.value)}
+              placeholder="Enter the secret message to be serialized into the carrier..."
+            />
+          ) : (
+            <div 
+              className={`payload-file-drop ${isDraggingPayload ? 'drag-over' : ''}`}
+              onDragEnter={handlePayloadDrag}
+              onDragLeave={handlePayloadDrag}
+              onDragOver={handlePayloadDrag}
+              onDrop={handlePayloadDrop}
+              onClick={() => payloadInputRef.current?.click()}
+            >
+              <input 
+                type="file"
+                ref={payloadInputRef}
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  if (e.target.files?.[0]) setPayloadFile(e.target.files[0]);
+                }}
+              />
+              {payloadFile ? (
+                <div className="payload-selected-info">
+                  <span className="icon">📄</span>
+                  <div className="details">
+                    <span className="name">{payloadFile.name}</span>
+                    <span className="size">{(payloadFile.size / 1024).toFixed(1)} KB</span>
+                  </div>
+                  <button className="change-btn" onClick={(e) => { e.stopPropagation(); setPayloadFile(null); }}>Change</button>
+                </div>
+              ) : (
+                <div className="payload-prompt">
+                  <span className="icon">📁</span>
+                  <p>Click or drop <span>secret file</span> here</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="dashboard-row">
@@ -165,7 +262,7 @@ export default function EmbedTab() {
 
         <button 
           onClick={handleSubmit} 
-          disabled={loading || !file || !payload || !password} 
+          disabled={loading || !file || !password || (payloadType === 'text' ? !payload : !payloadFile)} 
           className={loading ? 'loading' : ''}
           style={{ width: '100%' }}
         >
@@ -190,8 +287,15 @@ export default function EmbedTab() {
             <span>{successData.name} • {successData.size}</span>
           </div>
           <button className="download-feedback-btn" onClick={() => {
-            // Success data is just for display, file was already auto-clicked in handleSubmit
-            // But we can re-trigger if needed or just show status
+            if (successData.url) {
+              const a = document.createElement('a');
+              a.style.display = 'none';
+              a.href = successData.url;
+              a.download = successData.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
           }}>
             Download Ready
           </button>

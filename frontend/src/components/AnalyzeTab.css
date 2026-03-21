@@ -133,7 +133,7 @@
 .prob-header .value {
   font-size: 2rem;
   font-weight: 800;
-  font-family: -apple-system, blinkmacsystemfont, sans-serif;
+  font-family: var(--font-main);
 }
 
 .prob-track {
@@ -186,7 +186,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: #f8fafc;
-  font-family: 'Fira Code', monospace;
+  font-family: var(--font-mono);
 }
 
 .feature-mini-bar {

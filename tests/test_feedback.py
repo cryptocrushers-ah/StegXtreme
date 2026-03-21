@@ -34,8 +34,11 @@ def test_feedback_triggers_retrain_at_30pct():
     for _ in range(15):
         engine.record(False)
     
-    # directly call retrain step instead of waiting for thread
-    engine._retrain_step()
+    # Wait for background thread to finish
+    start = time.time()
+    while engine.retrain_count == 0 and time.time() - start < 10:
+        time.sleep(0.1)
+        
     assert engine.retrain_count > 0
 
 def test_feedback_stats_returns_dict():

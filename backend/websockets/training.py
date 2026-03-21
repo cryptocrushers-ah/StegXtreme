@@ -1,9 +1,14 @@
 from fastapi import WebSocket, WebSocketDisconnect
 import asyncio
-import torch
 import json
-from core.neural.trainer import GANTrainer
 from starlette.websockets import WebSocketState
+
+try:
+    import torch
+    from core.neural.trainer import GANTrainer
+    HAS_NEURAL = True
+except ImportError:
+    HAS_NEURAL = False
 
 # store active training sessions
 active_sessions = {}
@@ -18,6 +23,15 @@ async def training_ws_endpoint(
     """
     await websocket.accept()
     active_sessions[run_id] = websocket
+
+    if not HAS_NEURAL:
+        await websocket.send_json({
+            "run_id": run_id,
+            "status": "error",
+            "message": "Neural dependencies (torch) not found. Please install requirements_gpu.txt."
+        })
+        await websocket.close()
+        return
 
     trainer = GANTrainer()
     cover   = torch.rand(2, 1, 64, 64)

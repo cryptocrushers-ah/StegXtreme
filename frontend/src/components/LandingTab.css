@@ -20,7 +20,7 @@
   background: var(--black);
   color: var(--text);
   scroll-behavior: smooth;
-  font-family: -apple-system, "SF Pro Display", "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-main);
 }
 
 /* NAV */
@@ -96,7 +96,6 @@
   text-align: center;
   padding: 120px 40px 80px;
   position: relative;
-  overflow: hidden;
 }
 
 .hero-glow {
@@ -106,6 +105,36 @@
   transform: translate(-50%, -60%);
   background: radial-gradient(ellipse, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
   pointer-events: none;
+  z-index: 1;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 1400px; height: 900px;
+  top: 30%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-wave-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+  will-change: transform;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hero-wave-canvas {
+    opacity: 0.65;
+  }
 }
 
 .eyebrow {
@@ -122,6 +151,8 @@
   border: 1px solid var(--border);
   border-radius: 100px;
   background: var(--off-black);
+  z-index: 2;
+  position: relative;
 }
 
 .eyebrow::before {
@@ -134,11 +165,13 @@
 .hero h1 {
   font-size: clamp(56px, 10vw, 100px);
   font-weight: 700;
-  letter-spacing: -4px;
+  letter-spacing: -2.5px;
   line-height: 0.9;
   color: var(--white);
   margin-bottom: 32px;
   max-width: 900px;
+  z-index: 2;
+  position: relative;
 }
 
 .hero h1 em {
@@ -157,9 +190,11 @@
   margin: 0 auto 56px;
   letter-spacing: -0.2px;
   line-height: 1.6;
+  z-index: 2;
+  position: relative;
 }
 
-.btn-group { display: flex; gap: 16px; margin-bottom: 72px; }
+.btn-group { display: flex; gap: 16px; margin-bottom: 72px; z-index: 2; position: relative; }
 .btn { 
   padding: 14px 40px; 
   border-radius: 6px; 
@@ -203,6 +238,8 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  position: relative;
 }
 
 .hstat {
@@ -237,7 +274,7 @@
 
 /* SECTION */
 .section-title {
-  letter-spacing: -2px;
+  letter-spacing: -0.5px;
   line-height: 1;
 }
 
@@ -329,7 +366,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
 .section-title {
   font-size: clamp(28px, 4vw, 44px);
   font-weight: 700;
-  letter-spacing: -1.8px;
+  letter-spacing: -0.5px;
   color: var(--white);
   line-height: 1.07;
   margin-bottom: 14px;
@@ -370,7 +407,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
   color: var(--muted);
   text-transform: uppercase;
   margin-bottom: 18px;
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: var(--font-mono);
 }
 
 .step-icon { font-size: 24px; margin-bottom: 14px; display: block; }
@@ -378,7 +415,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
 .step h3 {
   font-size: 15px;
   font-weight: 600;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.2px;
   color: var(--white);
   margin-bottom: 8px;
 }
@@ -389,7 +426,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
   line-height: 1.65;
 }
 
-.mono { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.85em; color: var(--accent); }
+.mono { font-family: var(--font-mono); font-size: 0.85em; color: var(--accent); }
 
 /* MODULES */
 .modules-grid {
@@ -441,7 +478,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
 .mod h3 {
   font-size: 16.5px;
   font-weight: 600;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
   color: var(--white);
   margin-bottom: 8px;
 }
@@ -462,7 +499,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
   border: 1px solid var(--border);
   border-radius: 5px;
   color: var(--muted);
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: var(--font-mono);
 }
 
 /* TUNNEL */
@@ -578,7 +615,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
 .proto-card h4 {
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.1px;
   color: var(--white);
   margin-bottom: 4px;
 }
@@ -624,8 +661,8 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
 
 .gan-card h3 {
   font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.6px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
   color: var(--white);
   margin-bottom: 7px;
 }
@@ -659,12 +696,12 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
   font-size: 11.5px;
   color: var(--muted);
   margin: 0 auto;
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: var(--font-mono);
 }
 
 .terminal-body {
   padding: 18px;
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.85;
 }
@@ -792,8 +829,8 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
 
 .team-name {
   font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -1.5px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
   color: var(--white);
   margin-bottom: 9px;
 }
@@ -803,7 +840,7 @@ section { padding: 96px 0; border-top: 1px solid var(--border); }
 .team-branch {
   margin-top: 14px;
   display: inline-block;
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--white);
   background: var(--off-black);

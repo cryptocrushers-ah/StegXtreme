@@ -1,6 +1,8 @@
 :root {
-  --sf-font: -apple-system, "SF Pro Display", "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-family: var(--sf-font);
+  --font-main: -apple-system, "SF Pro Display", "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", "SFMono-Regular", ui-monospace, "Fira Code", monospace;
+  
+  font-family: var(--font-main);
   line-height: 1.5;
   font-weight: 400;
 
@@ -16,11 +18,11 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
+  width: 100vw;
   min-height: 100vh;
   background: #000000;
+  font-family: var(--font-main);
   overflow-x: hidden;
 }
 
@@ -37,10 +39,10 @@ h1 {
 }
 
 #root {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 .glass-panel {
@@ -80,7 +82,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
-button:not(.tab-btn) {
+button:not(.tab-btn):not(.nav-item):not(.logout-btn) {
   background: #ffffff;
   color: #000000;
   border: none;
@@ -90,13 +92,13 @@ button:not(.tab-btn) {
   margin-top: 1.5rem;
 }
 
-button:not(.tab-btn):hover:not(:disabled) {
+button:not(.tab-btn):not(.nav-item):not(.logout-btn):hover:not(:disabled) {
   transform: translateY(-2px);
   background: #f4f4f5;
   box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
 }
 
-button:not(.tab-btn):active {
+button:not(.tab-btn):not(.nav-item):not(.logout-btn):active {
   transform: translateY(0);
 }
 
