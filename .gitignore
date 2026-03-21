@@ -14,3 +14,4 @@ storage/uploads/
 storage/outputs/
 
 # keep storage/models/ tracked for Dev B
+storage/models/*.data 
