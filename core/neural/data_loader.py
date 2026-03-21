@@ -6,189 +6,268 @@ import soundfile as sf
 from pathlib import Path
 from torch.utils.data import Dataset, DataLoader
 
-class VideoFrameDataset(Dataset):
-    """Extract Y channel frames from videos"""
-    
-    def __init__(self, folder: str, frame_size=64, max_frames=1000):
-        self.frames = []
-        folder_path = Path(folder)
-        
-        for video_path in folder_path.glob("*.mp4"):
-            frames = self._extract_frames(
-                str(video_path), frame_size, max_frames
-            )
-            self.frames.extend(frames)
-        
-        for video_path in folder_path.glob("*.avi"):
-            frames = self._extract_frames(
-                str(video_path), frame_size, max_frames
-            )
-            self.frames.extend(frames)
-            
-        print(f"Loaded {len(self.frames)} frames from {folder}")
 
-    def _extract_frames(self, path, size, max_frames):
-        frames = []
-        cap    = cv2.VideoCapture(path)
-        count  = 0
-        
-        while count < max_frames:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            # convert to grayscale Y channel
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            gray = cv2.resize(gray, (size, size))
-            # normalize to 0-1
-            tensor = torch.tensor(
-                gray, dtype=torch.float32
-            ).unsqueeze(0) / 255.0
-            frames.append(tensor)
-            count += 1
-            
-        cap.release()
-        return frames
+class LazyImageDataset(Dataset):
+    """
+    Loads images lazily — reads from disk only when needed.
+    Saves RAM significantly.
+    """
+    def __init__(
+        self,
+        folder: str,
+        patch_size: int = 128,
+        patches_per_image: int = 8
+    ):
+        self.patch_size        = patch_size
+        self.patches_per_image = patches_per_image
+        self.image_paths       = []
+
+        folder_path = Path(str(folder))
+        for ext in ["*.jpg", "*.png", "*.jpeg", "*.bmp"]:
+            self.image_paths.extend(
+                list(folder_path.glob(ext))
+            )
+
+        self.total = len(self.image_paths) * patches_per_image
+        print(f"LazyImageDataset: {len(self.image_paths)} images "
+              f"→ {self.total} patches (lazy)")
 
     def __len__(self):
-        return len(self.frames)
+        return self.total
 
     def __getitem__(self, idx):
-        return self.frames[idx]
+        # figure out which image and which patch
+        img_idx   = idx // self.patches_per_image
+        img_path  = self.image_paths[
+            img_idx % len(self.image_paths)
+        ]
 
-
-class ImageDataset(Dataset):
-    """Load images as Y channel patches"""
-    
-    def __init__(self, folder: str, patch_size=64):
-        self.patches = []
-        folder_path       = Path(folder)
-        extensions   = ["*.jpg", "*.png", "*.jpeg", "*.bmp"]
-
-        for ext in extensions:
-            for img_path in folder_path.glob(ext):
-                patches = self._extract_patches(
-                    str(img_path), patch_size
-                )
-                self.patches.extend(patches)
-
-        print(f"Loaded {len(self.patches)} patches from {folder}")
-
-    def _extract_patches(self, path, size):
-        patches = []
-        img     = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        # load image from disk
+        img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
         if img is None:
-            return patches
+            return torch.rand(1, self.patch_size, self.patch_size)
 
-        img = cv2.resize(img, (256, 256))
-        # extract non-overlapping patches
-        for i in range(0, 256 - size, size):
-            for j in range(0, 256 - size, size):
-                patch = img[i:i+size, j:j+size]
-                tensor = torch.tensor(
-                    patch, dtype=torch.float32
-                ).unsqueeze(0) / 255.0
-                patches.append(tensor)
+        h, w = img.shape
+        if h < self.patch_size or w < self.patch_size:
+            img  = cv2.resize(
+                img,
+                (self.patch_size * 2, self.patch_size * 2)
+            )
+            h, w = img.shape
 
-        return patches
+        # random patch
+        top   = np.random.randint(0, h - self.patch_size)
+        left  = np.random.randint(0, w - self.patch_size)
+        patch = img[
+            top:top+self.patch_size,
+            left:left+self.patch_size
+        ]
+
+        return torch.tensor(
+            patch, dtype=torch.float32
+        ).unsqueeze(0) / 255.0
+
+
+class LazyVideoDataset(Dataset):
+    """
+    Loads video frames lazily — reads from disk when needed.
+    """
+    def __init__(
+        self,
+        folder: str,
+        patch_size: int = 128,
+        patches_per_video: int = 16,
+        max_frames: int = 30
+    ):
+        self.patch_size        = patch_size
+        self.patches_per_video = patches_per_video
+        self.max_frames        = max_frames
+        self.video_paths       = []
+
+        folder_path = Path(str(folder))
+        for ext in ["*.mp4", "*.avi", "*.mov"]:
+            self.video_paths.extend(
+                list(folder_path.glob(ext))
+            )
+
+        self.total = len(self.video_paths) * patches_per_video
+        print(f"LazyVideoDataset: {len(self.video_paths)} videos "
+              f"→ {self.total} patches (lazy)")
 
     def __len__(self):
-        return len(self.patches)
+        return self.total
 
     def __getitem__(self, idx):
-        return self.patches[idx]
+        video_idx  = idx // self.patches_per_video
+        video_path = self.video_paths[
+            video_idx % len(self.video_paths)
+        ]
+
+        cap   = cv2.VideoCapture(str(video_path))
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        if total == 0:
+            cap.release()
+            return torch.rand(1, self.patch_size, self.patch_size)
+
+        # seek to random frame
+        frame_idx = np.random.randint(
+            0, min(total, self.max_frames)
+        )
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+        ret, frame = cap.read()
+        cap.release()
+
+        if not ret or frame is None:
+            return torch.rand(1, self.patch_size, self.patch_size)
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+
+        if h < self.patch_size or w < self.patch_size:
+            return torch.rand(1, self.patch_size, self.patch_size)
+
+        top   = np.random.randint(0, h - self.patch_size)
+        left  = np.random.randint(0, w - self.patch_size)
+        patch = gray[
+            top:top+self.patch_size,
+            left:left+self.patch_size
+        ]
+
+        return torch.tensor(
+            patch, dtype=torch.float32
+        ).unsqueeze(0) / 255.0
 
 
-class AudioDataset(Dataset):
-    """Convert audio spectrograms to image patches"""
+class LazyAudioDataset(Dataset):
+    """
+    Loads audio lazily — reads from disk when needed.
+    """
+    def __init__(
+        self,
+        folder: str,
+        patch_size: int = 128,
+        patches_per_file: int = 4
+    ):
+        self.patch_size       = patch_size
+        self.patches_per_file = patches_per_file
+        self.audio_paths      = []
 
-    def __init__(self, folder: str, patch_size=64):
-        self.patches = []
-        folder_path       = Path(folder)
-
-        for wav_path in folder_path.glob("*.wav"):
-            patches = self._extract_spectrogram_patches(
-                str(wav_path), patch_size
+        folder_path = Path(str(folder))
+        for ext in ["*.wav", "*.flac"]:
+            self.audio_paths.extend(
+                list(folder_path.glob(ext))
             )
-            self.patches.extend(patches)
 
-        print(f"Loaded {len(self.patches)} audio patches from {folder}")
+        self.total = len(self.audio_paths) * patches_per_file
+        print(f"LazyAudioDataset: {len(self.audio_paths)} files "
+              f"→ {self.total} patches (lazy)")
 
-    def _extract_spectrogram_patches(self, path, size):
-        patches = []
+    def __len__(self):
+        return self.total
+
+    def __getitem__(self, idx):
+        file_idx   = idx // self.patches_per_file
+        audio_path = self.audio_paths[
+            file_idx % len(self.audio_paths)
+        ]
+
         try:
-            data, sr = sf.read(path)
-            # convert to mono
+            data, sr = sf.read(str(audio_path))
             if len(data.shape) > 1:
                 data = data.mean(axis=1)
+            data = data.astype(np.float32)
 
-            # compute spectrogram
-            spec = np.abs(np.fft.rfft(
-                data.reshape(-1, 512), axis=1
-            )).astype(np.float32)
+            n_fft  = 512
+            hop    = 128
+            frames = []
 
-            # normalize
-            if spec.max() > 0:
-                spec = spec / spec.max()
+            for start in range(
+                0, len(data) - n_fft, hop
+            ):
+                frame = data[start:start + n_fft]
+                spec  = np.abs(np.fft.rfft(frame))
+                frames.append(spec)
 
-            # resize to 256x256 and extract patches
-            spec_resized = cv2.resize(spec, (256, 256))
+            if len(frames) < self.patch_size:
+                return torch.rand(
+                    1, self.patch_size, self.patch_size
+                )
 
-            for i in range(0, 256 - size, size):
-                for j in range(0, 256 - size, size):
-                    patch = spec_resized[i:i+size, j:j+size]
-                    tensor = torch.tensor(
-                        patch, dtype=torch.float32
-                    ).unsqueeze(0)
-                    patches.append(tensor)
+            spec_2d = np.array(frames).T
+            if spec_2d.max() > 0:
+                spec_2d = spec_2d / spec_2d.max()
 
-        except Exception as e:
-            print(f"Error loading {path}: {e}")
+            freq_bins, time_frames = spec_2d.shape
+            if (freq_bins  < self.patch_size or
+                    time_frames < self.patch_size):
+                return torch.rand(
+                    1, self.patch_size, self.patch_size
+                )
 
-        return patches
+            top   = np.random.randint(
+                0, freq_bins  - self.patch_size
+            )
+            left  = np.random.randint(
+                0, time_frames - self.patch_size
+            )
+            patch = spec_2d[
+                top:top+self.patch_size,
+                left:left+self.patch_size
+            ].astype(np.float32)
 
-    def __len__(self):
-        return len(self.patches)
+            return torch.tensor(patch).unsqueeze(0)
 
-    def __getitem__(self, idx):
-        return self.patches[idx]
+        except Exception:
+            return torch.rand(
+                1, self.patch_size, self.patch_size
+            )
 
 
 def get_combined_loader(
     data_folder: str,
-    batch_size: int = 4,
-    patch_size: int = 64
-) -> DataLoader:
+    batch_size: int  = 16,
+    patch_size: int  = 128,
+    num_workers: int = 2
+):
     """
-    Load all media types from a folder and combine into one DataLoader.
-    Expects subfolders: videos/, images/, audio/
+    Creates lazy DataLoader — minimal RAM usage.
+    Reads from disk on demand.
     """
-    all_data = []
+    from torch.utils.data import ConcatDataset
 
-    video_folder = os.path.join(data_folder, "videos")
+    datasets     = []
     image_folder = os.path.join(data_folder, "images")
+    video_folder = os.path.join(data_folder, "videos")
     audio_folder = os.path.join(data_folder, "audio")
 
-    if os.path.exists(video_folder):
-        video_ds = VideoFrameDataset(video_folder, patch_size)
-        all_data.extend(video_ds.frames)
-
     if os.path.exists(image_folder):
-        image_ds = ImageDataset(image_folder, patch_size)
-        all_data.extend(image_ds.patches)
-
+        datasets.append(
+            LazyImageDataset(image_folder, patch_size)
+        )
+    if os.path.exists(video_folder):
+        datasets.append(
+            LazyVideoDataset(video_folder, patch_size)
+        )
     if os.path.exists(audio_folder):
-        audio_ds = AudioDataset(audio_folder, patch_size)
-        all_data.extend(audio_ds.patches)
+        datasets.append(
+            LazyAudioDataset(audio_folder, patch_size)
+        )
 
-    if not all_data:
-        print("No training data found — using synthetic fallback")
+    if not datasets:
+        print("No training data found — using synthetic")
         return None
 
-    print(f"\nTotal training samples: {len(all_data)}")
+    combined = ConcatDataset(datasets)
+    total    = len(combined)
+    print(f"\nTotal training patches: {total} (lazy loading)")
 
     return DataLoader(
-        all_data,
+        combined,
         batch_size=batch_size,
         shuffle=True,
-        drop_last=True
+        drop_last=True,
+        num_workers=num_workers,
+        pin_memory=True,     # faster GPU transfer
+        prefetch_factor=2    # prefetch 2 batches ahead
     )

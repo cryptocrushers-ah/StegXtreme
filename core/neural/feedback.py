@@ -62,6 +62,16 @@ class FeedbackEngine:
                 )
                 print("[FeedbackEngine] Loaded pretrained detector")
 
+        cover    = torch.rand(2, 1, 64, 64)
+        payloads = torch.rand(2, 1, 64, 64)
+        losses   = self.trainer.train_step(cover, payloads)
+        with self._lock:
+            self.retrain_count += 1
+            self._retraining    = False
+        print(f"[FeedbackEngine] Retrain #{self.retrain_count} "
+            f"d_loss={losses['d_loss']:.4f} "
+            f"h_loss={losses['h_loss']:.4f}")
+
     def detection_rate(self) -> float:
         with self._lock:
             return self._detection_rate()
