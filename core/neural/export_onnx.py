@@ -23,7 +23,7 @@ def export_detector(path="storage/models/detector.onnx"):
     model = DetectorNetwork().eval()
     dummy = torch.zeros(1, 1, 64, 64)
     torch.onnx.export(
-        model, dummy, path,
+        model, dummy, path, # type: ignore
         input_names=["frame_Y"],
         output_names=["probability"],
         opset_version=18

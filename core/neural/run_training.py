@@ -26,7 +26,7 @@ def run_full_training(
         # get batch
         if use_real:
             try:
-                cover = next(data_iter)
+                cover = next(data_iter) # type: ignore
             except StopIteration:
                 data_iter = iter(loader)
                 cover     = next(data_iter)

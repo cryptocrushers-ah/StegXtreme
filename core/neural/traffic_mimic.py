@@ -91,7 +91,7 @@ class TrafficMimic:
         self.model.eval()
         dummy = torch.zeros(1, 10).to(self.device)
         torch.onnx.export(
-            self.model, dummy, path,
+            self.model, dummy, path, # type: ignore
             input_names=["recent_delays"],
             output_names=["next_delay"],
             opset_version=18
