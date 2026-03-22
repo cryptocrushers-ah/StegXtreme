@@ -202,3 +202,213 @@
   background: #ffffff;
   border-radius: 2px;
 }
+
+/* Threat Dashboard Styles */
+.threat-dashboard {
+  margin-bottom: 3rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.threat-banner {
+  padding: 1.5rem 2rem;
+  border-bottom-width: 1px;
+}
+
+.banner-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.threat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.level-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+.level-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.score-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.score-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.safe-status div {
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-yes { background: rgba(34, 197, 94, 0.2); color: #166534; }
+.status-no { background: rgba(239, 68, 68, 0.2); color: #7f1d1d; }
+
+.threat-content {
+  padding: 2rem;
+}
+
+.summary-text {
+  font-size: 1.1rem;
+  color: #f1f5f9;
+  margin-bottom: 2rem;
+}
+
+.primary-risk-box {
+  background: rgba(234, 179, 8, 0.1);
+  border-left: 4px solid #eab308;
+  padding: 1.25rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.risk-icon { font-size: 1.5rem; }
+
+.risk-text strong {
+  display: block;
+  font-size: 0.8rem;
+  color: #eab308;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.risk-text p {
+  color: #f8fafc;
+  font-weight: 600;
+  margin: 0;
+}
+
+.risk-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.risk-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1.25rem;
+  border-radius: 12px;
+  display: flex;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-icon { font-size: 1.5rem; }
+
+.card-details { flex: 1; }
+
+.card-details strong {
+  display: block;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 0.25rem;
+}
+
+.card-details p {
+  color: #f1f5f9;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.risk-low { background: #166534; color: #f0fdf4; }
+.risk-medium { background: #713f12; color: #fefce8; }
+.risk-high { background: #7f1d1d; color: #fef2f2; }
+
+.recommendations-section h4 {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.recs-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recs-list li {
+  background: rgba(34, 197, 94, 0.05);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(34, 197, 94, 0.1);
+  color: #dcfce7;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.recs-list .bullet {
+  background: #22c55e;
+  color: #ffffff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.threat-placeholder {
+  padding: 3rem;
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  background: rgba(255,255,255,0.02);
+  border-radius: 16px;
+  margin-bottom: 3rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

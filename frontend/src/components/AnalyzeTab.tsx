@@ -16,6 +16,104 @@ interface AnalysisResult {
   features: Record<string, number>;
 }
 
+interface ThreatReport {
+  threat_level: string;
+  threat_color: string;
+  threat_score: number;
+  primary_risk: string;
+  risks: string[];
+  recommendations: string[];
+  file_type_assessment: string;
+  file_type_risk: string;
+  strength_assessment: string;
+  strength_risk: string;
+  safe_to_send: boolean;
+  summary: string;
+}
+
+function ThreatDashboard({ report }: { report: ThreatReport }) {
+  const levelStyles: Record<string, any> = {
+    SAFE: { bg: '#F0FDF4', text: '#166534', border: '#22C55E' },
+    LOW: { bg: '#F7FEE7', text: '#365314', border: '#84CC16' },
+    MODERATE: { bg: '#FEFCE8', text: '#713F12', border: '#EAB308' },
+    HIGH: { bg: '#FFF7ED', text: '#7C2D12', border: '#F97316' },
+    CRITICAL: { bg: '#FEF2F2', text: '#7F1D1D', border: '#EF4444' },
+  };
+
+  const style = levelStyles[report.threat_level] || levelStyles.SAFE;
+
+  return (
+    <div className="threat-dashboard animate-in">
+      <div 
+        className="threat-banner" 
+        style={{ backgroundColor: style.bg, color: style.text, border: `1px solid ${style.border}` }}
+      >
+        <div className="banner-main">
+          <div className="threat-info">
+            <span className="level-label">THREAT LEVEL</span>
+            <span className="level-value">{report.threat_level}</span>
+          </div>
+          <div className="score-info">
+            <span className="score-value">{Math.round(report.threat_score * 100)}%</span>
+            <span className="score-label">DETECTION CONFIDENCE</span>
+          </div>
+          <div className="safe-status">
+            {report.safe_to_send ? (
+              <div className="status-yes"><span className="icon">✓</span> SAFE TO SEND</div>
+            ) : (
+              <div className="status-no"><span className="icon">✕</span> DO NOT SEND</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="threat-content">
+        <p className="summary-text"><strong>Verdict:</strong> {report.summary}</p>
+        
+        <div className="primary-risk-box">
+          <span className="risk-icon">⚠️</span>
+          <div className="risk-text">
+            <strong>Primary Risk Factor</strong>
+            <p>{report.primary_risk}</p>
+          </div>
+        </div>
+
+        <div className="risk-grid">
+          <div className="risk-card">
+            <span className="card-icon">📁</span>
+            <div className="card-details">
+              <strong>File Type Rating</strong>
+              <p>{report.file_type_assessment}</p>
+              <span className={`badge risk-${report.file_type_risk.toLowerCase()}`}>{report.file_type_risk}</span>
+            </div>
+          </div>
+          {report.strength_assessment && (
+            <div className="risk-card">
+              <span className="card-icon">⚡</span>
+              <div className="card-details">
+                <strong>Payload Strength</strong>
+                <p>{report.strength_assessment}</p>
+                <span className={`badge risk-${report.strength_risk.toLowerCase()}`}>{report.strength_risk}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {report.recommendations.length > 0 && (
+          <div className="recommendations-section">
+            <h4>Actionable Recommendations</h4>
+            <ul className="recs-list">
+              {report.recommendations.map((rec, i) => (
+                <li key={i}><span className="bullet">{i + 1}</span> {rec}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ProbabilityBar({ probability, verdict }: { probability: number; verdict: string }) {
   const pct = Math.round(probability * 100);
   const color =
@@ -45,8 +143,22 @@ function ProbabilityBar({ probability, verdict }: { probability: number; verdict
 }
 
 function FeatureBreakdown({ features }: { features: Record<string, number> }) {
+  const labelMap: Record<string, string> = {
+    lsb_noise: 'Bit Pattern Anomaly',
+    dct_ac_energy: 'Frequency Distortion',
+    chi_square_lsb: 'Statistical Uniformity',
+    frame_delta_cv: 'Temporal Consistency',
+    chi_square_r: 'Red Channel Anomaly',
+    chi_square_g: 'Green Channel Anomaly',
+    chi_square_b: 'Blue Channel Anomaly',
+    sample_pairs: 'Spatial Correlation',
+    lsb_entropy: 'Signal Entropy',
+    mfcc_variance: 'Spectral Variance',
+    spectral_flatness: 'Signal Flatness',
+  };
+
   const items: FeatureScore[] = Object.entries(features).map(([k, v]) => ({
-    label: k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+    label: labelMap[k] || k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
     value: v,
   }));
 
@@ -59,36 +171,37 @@ function FeatureBreakdown({ features }: { features: Record<string, number> }) {
           color: '#94a3b8',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
-          marginBottom: '0.75rem',
+          marginBottom: '1rem',
         }}
       >
-        Per-Feature Breakdown
+        Neural Integrity Check
       </h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
         {items.map(({ label, value }) => {
           const pct = Math.round(value * 100);
           const color =
             value < 0.35 ? '#22c55e' : value < 0.65 ? '#f59e0b' : '#ef4444';
           return (
-            <div key={label}>
+            <div key={label} style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  fontSize: '0.8rem',
-                  color: '#cbd5e1',
-                  marginBottom: '0.2rem',
+                  fontSize: '0.75rem',
+                  color: '#94a3b8',
+                  marginBottom: '0.4rem',
+                  fontWeight: 600,
                 }}
               >
                 <span>{label}</span>
-                <span style={{ color, fontWeight: 600 }}>{pct}%</span>
+                <span style={{ color, fontWeight: 700 }}>{pct}%</span>
               </div>
               <div
                 style={{
                   width: '100%',
-                  height: '6px',
-                  borderRadius: '3px',
-                  background: 'rgba(255,255,255,0.06)',
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: 'rgba(255,255,255,0.05)',
                   overflow: 'hidden',
                 }}
               >
@@ -96,15 +209,25 @@ function FeatureBreakdown({ features }: { features: Record<string, number> }) {
                   style={{
                     width: `${pct}%`,
                     height: '100%',
-                    borderRadius: '3px',
+                    borderRadius: '2px',
                     background: color,
-                    transition: 'width 0.6s ease',
+                    transition: 'width 1s ease-out',
+                    boxShadow: `0 0 10px ${color}33`,
                   }}
                 />
               </div>
             </div>
           );
         })}
+      </div>
+      
+      <div className="metric-guide" style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <h5 style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: '#f8fafc', textTransform: 'uppercase' }}>Understanding these metrics</h5>
+        <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8', lineHeight: '1.5' }}>
+          Each percentage represents the <strong>suspicion level</strong> detected by our neural heuristics. 
+          A higher percentage indicates more significant anomalies compared to a "clean" carrier file. 
+          <strong> Bit Pattern</strong> anomalies suggest LSB manipulation, while <strong>Frequency/Temporal</strong> anomalies suggest embedding in compressed data domains.
+        </p>
       </div>
     </div>
   );
@@ -115,6 +238,7 @@ export default function AnalyzeTab() {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [threatReport, setThreatReport] = useState<ThreatReport | null>(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -144,6 +268,7 @@ export default function AnalyzeTab() {
     }
     setError('');
     setResult(null);
+    setThreatReport(null);
     setLoading(true);
 
     const formData = new FormData();
@@ -155,6 +280,21 @@ export default function AnalyzeTab() {
         body: formData,
       });
       setResult(data);
+
+      try {
+        const threatData: ThreatReport = await apiRequest('/api/analyze/threat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file_path: file.name, 
+            detection_prob: data.probability,
+            embed_strength: null
+          }),
+        });
+        setThreatReport(threatData);
+      } catch (threatErr) {
+        console.error("Threat analysis failed:", threatErr);
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -252,8 +392,19 @@ export default function AnalyzeTab() {
               Download Report
             </button>
           </div>
-          <ProbabilityBar probability={result.probability} verdict={result.verdict} />
-          <FeatureBreakdown features={result.features} />
+          
+          {threatReport ? (
+            <ThreatDashboard report={threatReport} />
+          ) : (
+            <div className="threat-placeholder">
+              Analyzing threat intelligence...
+            </div>
+          )}
+
+          <div style={{ marginTop: '2.5rem', opacity: 0.6, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2.5rem' }}>
+            <ProbabilityBar probability={result.probability} verdict={result.verdict} />
+            <FeatureBreakdown features={result.features} />
+          </div>
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from backend.websockets.training import training_ws_endpoint
-from backend.api import embed, extract, analyze, visualise, tunnel, auth, stats, receive
+from backend.api import embed, extract, analyze, visualise, tunnel, auth, stats, receive, threat
 from backend.api.auth import get_current_user
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -38,3 +38,4 @@ app.include_router(analyze.router, dependencies=[Depends(get_current_user)])
 app.include_router(visualise.router, dependencies=[Depends(get_current_user)])
 app.include_router(tunnel.router, dependencies=[Depends(get_current_user)])
 app.include_router(receive.router)
+app.include_router(threat.router, dependencies=[Depends(get_current_user)])
