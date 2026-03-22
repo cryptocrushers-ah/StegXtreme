@@ -29,8 +29,8 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ─── WAVE CANVAS ───────────────────────────────────────── */
-.wave-canvas {
+/* ─── STAR FIELD CANVAS ─────────────────────────────────── */
+.star-canvas {
   position: fixed;
   top: 0;
   left: 0;

@@ -31,6 +31,104 @@ interface ThreatReport {
   summary: string;
 }
 
+interface AuthReport {
+  is_authentic: boolean;
+  verdict: string;
+  verdict_color: string;
+  signed_at?: string;
+  key_fingerprint?: string;
+  modification_detected: boolean;
+  error?: string;
+}
+
+function AuthVerify({ filePath }: { filePath: string }) {
+  const [report, setReport] = useState<AuthReport | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleVerify = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await apiRequest('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_path: filePath }),
+      });
+      setReport(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-verify-panel animate-in">
+      <div className="auth-header">
+        <span className="auth-icon">{report?.is_authentic ? '🛡️' : '🔒'}</span>
+        <div className="auth-title">
+          <h3>Neural Authenticity Engine</h3>
+          <p>Verify cryptographic pixel signatures</p>
+        </div>
+        {!report && (
+          <button 
+            className={`verify-trigger-btn ${loading ? 'loading' : ''}`}
+            onClick={handleVerify}
+            disabled={loading}
+          >
+            {loading ? 'Verifying...' : 'Verify Authenticity'}
+          </button>
+        )}
+      </div>
+
+      {error && <div className="error-message">{error}</div>}
+
+      {report && (
+        <div className="auth-results animate-in">
+          <div className="auth-status-container">
+            <div className="verdict-card" style={{ backgroundColor: `${report.verdict_color}15`, borderColor: `${report.verdict_color}44` }}>
+              <span className="verdict-label">Status</span>
+              <span className="verdict-value" style={{ color: report.verdict_color }}>{report.verdict}</span>
+            </div>
+
+            {report.is_authentic && (
+              <div className="auth-details-grid">
+                <div className="auth-detail">
+                  <span className="label">Timestamp</span>
+                  <span className="value">{report.signed_at}</span>
+                </div>
+                <div className="auth-detail">
+                  <span className="label">Neural Fingerprint</span>
+                  <span className="value"><code>{report.key_fingerprint}</code></span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {report.modification_detected && (
+            <div className="tamper-alert">
+              <span className="alert-icon">🚫</span>
+              <div className="alert-content">
+                <strong>TAMPERED DETECTED</strong>
+                <p>The pixel-perfect hash of this image does not match the original signature. This file has been modified after it was signed.</p>
+              </div>
+            </div>
+          )}
+
+          {report.verdict === 'UNSIGNED' && (
+            <div className="unsigned-notice">
+              <p>No steganographic signature found. This file was not originated from StegXtreme.</p>
+            </div>
+          )}
+          
+          <button className="reverify-btn" onClick={() => setReport(null)}>Reset</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ThreatDashboard({ report }: { report: ThreatReport }) {
   const levelStyles: Record<string, any> = {
     SAFE: { bg: '#F0FDF4', text: '#166534', border: '#22C55E' },
@@ -400,6 +498,10 @@ export default function AnalyzeTab() {
               Analyzing threat intelligence...
             </div>
           )}
+
+          <div style={{ marginTop: '2rem' }}>
+            {file && <AuthVerify filePath={file.name} />}
+          </div>
 
           <div style={{ marginTop: '2.5rem', opacity: 0.6, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2.5rem' }}>
             <ProbabilityBar probability={result.probability} verdict={result.verdict} />

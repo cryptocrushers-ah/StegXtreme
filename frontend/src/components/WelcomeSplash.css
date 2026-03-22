@@ -66,7 +66,7 @@
   font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   font-size: clamp(48px, 8vw, 92px);
   font-weight: 700;
-  letter-spacing: -3px;
+  letter-spacing: -0.5px;
   line-height: 1;
   color: #ffffff;
   margin: 0 0 22px;
@@ -85,7 +85,7 @@
   font-family: -apple-system, 'SF Pro Text', BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   color: rgba(122,122,154,0.9);
-  letter-spacing: -0.1px;
+  letter-spacing: 0.2px;
   margin: 0 0 44px;
   opacity: 0;
   animation: line-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.85s both;

@@ -285,6 +285,11 @@ export default function EmbedTab() {
           <div className="success-info">
             <strong>Stego-Media Generated</strong>
             <span>{successData.name} • {successData.size}</span>
+            <div className="auth-badge-container">
+              <span className="auth-badge">
+                <span className="dot" /> AUTHENTICITY SIGNING ACTIVE
+              </span>
+            </div>
           </div>
           <button className="download-feedback-btn" onClick={() => {
             if (successData.url) {

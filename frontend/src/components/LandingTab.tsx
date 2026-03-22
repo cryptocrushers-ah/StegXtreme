@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { apiRequest } from '../utils/api';
-import RibbonBackground from './RibbonBackground';
 import './LandingTab.css';
 
 interface Stats {
@@ -19,6 +18,8 @@ interface LandingTabProps {
 const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
   const [stats, setStats] = useState<Stats | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -32,6 +33,153 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
     fetchStats();
   }, []);
 
+  /* ── STAR FIELD / WARP SPEED ANIMATION ── */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    interface Star {
+      x: number;   // position in 3D space (-1..1 normalised)
+      y: number;
+      z: number;   // depth: starts at 1 (far) rushes to 0 (near)
+      pz: number;  // previous z, used to draw streak tail
+      // colour tint: mostly white, occasional cyan or violet
+      r: number; g: number; b: number;
+      size: number; // base brightness size
+    }
+
+    const STAR_COUNT = 500;
+
+    const randomTint = (): [number, number, number] => {
+      const roll = Math.random();
+      if (roll > 0.88) return [0, 255, 224];       // cyan  ~12%
+      if (roll > 0.78) return [180, 150, 255];      // violet ~10%
+      return [210, 220, 255];                        // cool white ~78%
+    };
+
+    const spawnStar = (): Star => {
+      const [r, g, b] = randomTint();
+      return {
+        x: (Math.random() - 0.5) * 2,
+        y: (Math.random() - 0.5) * 2,
+        z: Math.random(),
+        pz: Math.random(),
+        r, g, b,
+        size: Math.random() * 1.2 + 0.3,
+      };
+    };
+
+    // Seed stars spread across full depth so warp starts immediately
+    const stars: Star[] = Array.from({ length: STAR_COUNT }, spawnStar);
+
+    // Warp speed ramps up on scroll — feels alive as user scrolls
+    let baseSpeed = 0.004;
+    let warpBoost = 0;
+    let lastScroll = 0;
+
+    const onScroll = () => {
+      const delta = Math.abs(window.scrollY - lastScroll);
+      lastScroll = window.scrollY;
+      warpBoost = Math.min(delta * 0.0015, 0.018); // cap boost
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    const draw = () => {
+      // Decay boost each frame
+      warpBoost *= 0.92;
+      const speed = baseSpeed + warpBoost;
+
+      // Trail: semi-transparent fill creates streak persistence
+      ctx.fillStyle = 'rgba(4, 4, 10, 0.22)';
+      ctx.fillRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2;
+
+      for (const s of stars) {
+        s.pz = s.z;
+        s.z -= speed;
+
+        // Recycle star that has passed the camera
+        if (s.z <= 0) {
+          s.x = (Math.random() - 0.5) * 2;
+          s.y = (Math.random() - 0.5) * 2;
+          s.z = 1;
+          s.pz = 1;
+          const [r, g, b] = randomTint();
+          s.r = r; s.g = g; s.b = b;
+          s.size = Math.random() * 1.2 + 0.3;
+          continue;
+        }
+
+        // Project 3D → 2D screen coords
+        const scale = 1 / s.z;
+        const sx = cx + s.x * scale * cx;
+        const sy = cy + s.y * scale * cy;
+
+        // Previous projected position for streak tail
+        const pScale = 1 / s.pz;
+        const px = cx + s.x * pScale * cx;
+        const py = cy + s.y * pScale * cy;
+
+        // Brightness increases as star approaches (z → 0)
+        const brightness = 1 - s.z;
+        const alpha = Math.min(brightness * 1.4, 1);
+        const radius = s.size * brightness * 2.2;
+
+        // Draw streak (tail from prev to current)
+        if (s.pz < 1) {
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(sx, sy);
+          ctx.strokeStyle = `rgba(${s.r},${s.g},${s.b},${alpha * 0.7})`;
+          ctx.lineWidth = radius * 0.6;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+
+        // Draw star dot at tip
+        ctx.beginPath();
+        ctx.arc(sx, sy, Math.max(radius * 0.5, 0.4), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${s.r},${s.g},${s.b},${alpha})`;
+        ctx.fill();
+
+        // Subtle glow for the brightest/closest stars
+        if (brightness > 0.7) {
+          ctx.beginPath();
+          ctx.arc(sx, sy, radius * 2.5, 0, Math.PI * 2);
+          const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, radius * 2.5);
+          glow.addColorStop(0, `rgba(${s.r},${s.g},${s.b},${(brightness - 0.7) * 0.25})`);
+          glow.addColorStop(1, `rgba(${s.r},${s.g},${s.b},0)`);
+          ctx.fillStyle = glow;
+          ctx.fill();
+        }
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    animRef.current = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -55,8 +203,8 @@ const LandingTab: React.FC<LandingTabProps> = ({ onNavigate }) => {
   return (
     <div className="landing-tab-wrapper" ref={scrollRef}>
 
-      {/* ── FULL-PAGE WAVE CANVAS ── */}
-      <RibbonBackground />
+      {/* ── FULL-PAGE STAR FIELD CANVAS ── */}
+      <canvas ref={canvasRef} className="star-canvas" aria-hidden="true" />
 
       {/* ── NAV ── */}
       <nav className="landing-nav">

@@ -412,3 +412,163 @@
 .animate-in {
   animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Auth Verification Styles */
+.auth-verify-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.auth-header {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.verify-trigger-btn {
+  margin-left: auto;
+  width: auto !important;
+  margin-top: 0 !important;
+  background: #22c55e !important;
+  color: #ffffff !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  border: none !important;
+}
+
+.verify-trigger-btn:hover {
+  background: #16a34a !important;
+  transform: translateY(-1px);
+}
+
+.reverify-btn {
+  margin-top: 1.5rem;
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #64748b !important;
+  font-size: 0.75rem !important;
+  padding: 0.4rem 0.8rem !important;
+  width: auto !important;
+}
+
+.auth-icon {
+  font-size: 1.75rem;
+}
+
+.auth-title h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #f8fafc;
+}
+
+.auth-title p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.auth-status-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.verdict-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.verdict-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.verdict-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.auth-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.auth-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.auth-detail .label {
+  font-size: 0.65rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.auth-detail .value {
+  font-size: 0.8rem;
+  color: #f1f5f9;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.tamper-alert {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+}
+
+.alert-icon { font-size: 1.25rem; }
+
+.alert-content strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #ef4444;
+  margin-bottom: 0.25rem;
+}
+
+.alert-content p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #f87171;
+  line-height: 1.4;
+}
+
+.unsigned-notice {
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.unsigned-notice p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-style: italic;
+}
