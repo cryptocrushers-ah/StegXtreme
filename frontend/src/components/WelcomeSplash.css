@@ -1,0 +1,165 @@
+/* ─── WELCOME SPLASH ─────────────────────────────────────── */
+
+.welcome-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.welcome-splash.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.splash-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.splash-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00ffe0;
+  box-shadow: 0 0 16px #00ffe0, 0 0 40px rgba(0,255,224,0.5);
+  margin-bottom: 28px;
+  animation: dot-appear 0.6s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes dot-appear {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.splash-label {
+  font-family: 'SF Mono', ui-monospace, 'Cascadia Code', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(0,255,224,0.7);
+  margin: 0 0 14px;
+  opacity: 0;
+  animation: line-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+}
+
+.splash-title {
+  font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  font-size: clamp(48px, 8vw, 92px);
+  font-weight: 700;
+  letter-spacing: -3px;
+  line-height: 1;
+  color: #ffffff;
+  margin: 0 0 22px;
+  opacity: 0;
+  animation: line-up 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s both;
+}
+
+.splash-title span {
+  background: linear-gradient(135deg, #00ffe0 0%, #8b5cf6 60%, #ff6b35 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.splash-tagline {
+  font-family: -apple-system, 'SF Pro Text', BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  color: rgba(122,122,154,0.9);
+  letter-spacing: -0.1px;
+  margin: 0 0 44px;
+  opacity: 0;
+  animation: line-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.85s both;
+}
+
+.splash-progress-wrap {
+  width: 220px;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 1px;
+  overflow: hidden;
+  opacity: 0;
+  animation: line-up 0.5s cubic-bezier(0.16,1,0.3,1) 1.0s both;
+}
+
+.splash-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ffe0, #8b5cf6);
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(0,255,224,0.6);
+  animation: progress-fill 1.6s cubic-bezier(0.4,0,0.2,1) 1.1s both;
+}
+
+@keyframes progress-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+@keyframes line-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.splash-corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+  animation: corner-in 1s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;
+}
+
+.splash-corner.tl { top: 32px;    left: 32px;  border-top:    1px solid #00ffe0; border-left:   1px solid #00ffe0; }
+.splash-corner.tr { top: 32px;    right: 32px; border-top:    1px solid #00ffe0; border-right:  1px solid #00ffe0; }
+.splash-corner.bl { bottom: 32px; left: 32px;  border-bottom: 1px solid #00ffe0; border-left:   1px solid #00ffe0; }
+.splash-corner.br { bottom: 32px; right: 32px; border-bottom: 1px solid #00ffe0; border-right:  1px solid #00ffe0; }
+
+@keyframes corner-in {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 0.25; transform: scale(1); }
+}
+
+.splash-version {
+  position: absolute;
+  bottom: 28px;
+  right: 36px;
+  font-family: 'SF Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: rgba(74,74,90,0.8);
+  opacity: 0;
+  animation: line-up 0.5s ease 1.2s both;
+}
+
+.splash-scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.025) 2px,
+    rgba(0,0,0,0.025) 4px
+  );
+  z-index: 1;
+}
