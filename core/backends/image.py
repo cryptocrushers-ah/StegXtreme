@@ -1,8 +1,12 @@
 import cv2
 import numpy as np
 import os
+from core.compute.auth import sign_and_embed
 from core.crypto.kdf import derive_key
 from core.crypto.cipher import aes_encrypt, aes_decrypt
+from core.compute.auth import sign_and_embed
+from core.neural.registry import _auth_private_key
+
 
 class ImageBackend:
     # Mid-frequency coefficients for DCT
@@ -38,10 +42,15 @@ class ImageBackend:
             payload_bits
         ))
 
+        # Authenticity signing — auto sign every embed
+        sign_and_embed(out_path, _auth_private_key, out_path)
+
         if algorithm == "lsb":
              return cls._embed_lsb(img, out_path, all_bits)
         else: # default to dct
              return cls._embed_dct(img, out_path, all_bits)
+        
+        
 
     @classmethod
     def _embed_lsb(cls, img, out_path, all_bits):

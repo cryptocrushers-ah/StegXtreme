@@ -59,3 +59,5 @@ class ModelRegistry:
             for chunk in iter(lambda: f.read(8192), b""):
                 h.update(chunk)
         return h.digest()
+from core.compute.auth import generate_keypair
+_auth_private_key, _auth_public_key = generate_keypair()
