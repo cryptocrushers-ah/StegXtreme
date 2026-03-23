@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import UploadFile, HTTPException
 import magic
 
-MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+MAX_FILE_SIZE = 2048 * 1024 * 1024  # 2GB
 
 ALLOWED_MIME_TYPES = {
     "image": ["image/png", "image/jpeg", "image/bmp"],

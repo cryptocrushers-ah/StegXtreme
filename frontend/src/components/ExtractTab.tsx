@@ -6,6 +6,17 @@ export default function ExtractTab() {
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState('');
   const [algorithm, setAlgorithm] = useState('default');
+
+  // Automatic algorithm selection based on file type
+  React.useEffect(() => {
+    if (!file) return;
+    const type = file.type;
+    if (type.startsWith('image/')) {
+      setAlgorithm('lsb');
+    } else if (type.startsWith('audio/') || type.startsWith('video/')) {
+      setAlgorithm('dct');
+    }
+  }, [file]);
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [extractedPayload, setExtractedPayload] = useState<string | null>(null);
@@ -39,8 +50,8 @@ export default function ExtractTab() {
       setError('Please provide both stego file and password.');
       return;
     }
-    if (file && file.size > 500 * 1024 * 1024) {
-      setError('File size exceeds the 500MB limit.');
+    if (file && file.size > 2048 * 1024 * 1024) {
+      setError('File size exceeds the 2GB limit.');
       return;
     }
     setError('');
@@ -143,7 +154,7 @@ export default function ExtractTab() {
           <div className="drop-prompt">
             <div className="pulse-icon">📂</div>
             <p>Upload a stego file to <span>reveal hidden content</span></p>
-            <span className="hint">Supports encrypted PNG, WAV, MP4 carriers</span>
+            <span className="hint">Supports encrypted PNG, WAV, MP4 carriers (Max 2GB)</span>
           </div>
         )}
       </div>

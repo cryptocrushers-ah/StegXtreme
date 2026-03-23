@@ -43,7 +43,7 @@ async def embed_data(
         BackendClass = get_backend(in_path)
         
         # Embed payload
-        BackendClass.embed(
+        final_out_path = BackendClass.embed(
             cover_path=in_path,
             out_path=out_path,
             payload=payload_bytes,
@@ -54,12 +54,14 @@ async def embed_data(
         # Neural Feedback Loop
         try:
             from backend.api.deps import feedback_engine
-            feedback_engine.evaluate_file(out_path)
+            feedback_engine.evaluate_file(final_out_path)
         except Exception as e:
             print(f"Feedback trigger failed: {e}")
         
         # Return the modified file
-        return FileResponse(out_path, media_type="application/octet-stream", filename=f"stego_{file.filename}")
+        # Use final_out_path from BackendClass as it may have changed (e.g., .mp4 -> .avi for FFV1)
+        final_filename = f"stego_{os.path.basename(final_out_path)}"
+        return FileResponse(final_out_path, media_type="application/octet-stream", filename=final_filename)
         
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -20,8 +20,8 @@ async def extract_data(
     Extracts a secret payload from a stego-media file.
     """
     await validate_file(file)
-    if file.size > 500 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Stego file exceeds the 500MB limit.")
+    if file.size > 2048 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Stego file exceeds the 2GB limit.")
 
     # Save uploaded file
     # The instruction changes the filename generation and file writing method.

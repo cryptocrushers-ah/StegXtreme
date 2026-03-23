@@ -27,6 +27,17 @@ export default function EmbedTab() {
 
   const [algorithm, setAlgorithm] = useState('default');
 
+  // Automatic algorithm selection based on file type
+  React.useEffect(() => {
+    if (!file) return;
+    const type = file.type;
+    if (type.startsWith('image/')) {
+      setAlgorithm('lsb');
+    } else if (type.startsWith('audio/') || type.startsWith('video/')) {
+      setAlgorithm('dct');
+    }
+  }, [file]);
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -74,8 +85,8 @@ export default function EmbedTab() {
       return;
     }
     
-    if (file && file.size > 500 * 1024 * 1024) {
-      setError('Carrier file size exceeds the 500MB limit.');
+    if (file && file.size > 2048 * 1024 * 1024) {
+      setError('Carrier file size exceeds the 2GB limit.');
       return;
     }
 
@@ -164,7 +175,7 @@ export default function EmbedTab() {
             </span>
             <div className="details">
               <strong>{file.name}</strong>
-              <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • Carrier Material</span>
+              <span>{(file.size / (1024 * 1024)).toFixed(2)} MB • Carrier Material (Max 2GB)</span>
             </div>
             <button className="change-btn" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Change Carrier</button>
           </div>
@@ -172,7 +183,7 @@ export default function EmbedTab() {
           <div className="drop-prompt">
             <div className="pulse-icon">📥</div>
             <p>Drop a file here to <span>hide your message</span></p>
-            <span className="hint">Supports PNG, WAV, MP4, AVI (Max 500MB)</span>
+            <span className="hint">Supports PNG, WAV, MP4, AVI (Max 2GB)</span>
           </div>
         )}
       </div>

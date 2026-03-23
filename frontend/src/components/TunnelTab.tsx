@@ -46,7 +46,7 @@ const TunnelTab: React.FC = () => {
     };
   }, [sessionId]);
 
-  const handleSend = async () => {
+    const handleSend = async () => {
     if (!target || !payload) return;
     if (payload.length > 50000) {
       setError('Payload too large for secure tunneling (Max 50KB).');
@@ -54,8 +54,9 @@ const TunnelTab: React.FC = () => {
     }
     
     setStatus('sending');
+    setError('');
     try {
-      await apiRequest('/api/tunnel/send', {
+      const res = await apiRequest('/api/tunnel/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -65,11 +66,25 @@ const TunnelTab: React.FC = () => {
           session_id: sessionId
         }),
       });
-      setPayload('');
+      if (res.status === 'sent') {
+        setPayload('');
+      }
       setStatus('idle');
     } catch (err) {
       console.error(err);
       setStatus('error');
+    }
+  };
+
+  const handleStop = async () => {
+    try {
+      await apiRequest('/api/tunnel/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+    } catch (err) {
+      console.error('Failed to stop:', err);
     }
   };
 
@@ -141,22 +156,23 @@ const TunnelTab: React.FC = () => {
               />
             </div>
 
-            <button 
-              className={`send-btn ${status === 'sending' ? 'sending' : ''}`} 
-              onClick={handleSend}
-              disabled={status === 'sending' || !target || !payload}
-            >
-              {status === 'sending' ? (
-                <>
-                  <div className="spinner" />
-                  Transmitting Packet...
-                </>
-              ) : (
-                <>
-                  <span className="icon">📡</span> Deploy Tunnel Packet
-                </>
-              )}
-            </button>
+            {status === 'sending' ? (
+              <button 
+                className="stop-btn animate-in" 
+                onClick={handleStop}
+              >
+                <div className="spinner" />
+                Stop Transmission
+              </button>
+            ) : (
+              <button 
+                className="send-btn" 
+                onClick={handleSend}
+                disabled={!target || !payload}
+              >
+                <span className="icon">📡</span> Deploy Tunnel Packet
+              </button>
+            )}
             {error && <div className="error-message" style={{ marginTop: '1rem' }}>{error}</div>}
           </div>
         ) : (

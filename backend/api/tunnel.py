@@ -1,4 +1,5 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request, HTTPException
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request, HTTPException, Depends
+from backend.api.auth import get_current_user
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 import json
@@ -32,14 +33,27 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+# Track active transmissions for cancellation
+active_transmissions: Dict[str, bool] = {}
+
 class TunnelSendRequest(BaseModel):
     protocol: str # "dns" or "http"
     payload: str
     target: str # IP or URL
     session_id: str
 
+class TunnelStopRequest(BaseModel):
+    session_id: str
+
+@router.post("/stop")
+async def tunnel_stop(req: TunnelStopRequest, user: dict = Depends(get_current_user)):
+    if req.session_id in active_transmissions:
+        active_transmissions[req.session_id] = True
+        return {"status": "stopping"}
+    return {"status": "not_active"}
+
 @router.post("/send")
-async def tunnel_send(req: TunnelSendRequest):
+async def tunnel_send(req: TunnelSendRequest, user: dict = Depends(get_current_user)):
     payload_bytes = req.payload.encode('utf-8')
     
     # Log the outgoing packet
@@ -51,20 +65,31 @@ async def tunnel_send(req: TunnelSendRequest):
         "timestamp": asyncio.get_event_loop().time()
     })
 
+    active_transmissions[req.session_id] = False
+    
     try:
+        def should_stop():
+            return active_transmissions.get(req.session_id, False)
+
+        loop = asyncio.get_event_loop()
         if req.protocol.lower() == "dns":
-            DNSTunnel.send(payload_bytes, req.target, req.session_id)
+            await loop.run_in_executor(None, DNSTunnel.send, payload_bytes, req.target, req.session_id, should_stop)
         elif req.protocol.lower() == "http":
-            HTTPTunnel.send(payload_bytes, req.target)
+            # Even if HTTP is one request, running in executor avoids blocking event loop
+            await loop.run_in_executor(None, HTTPTunnel.send, payload_bytes, req.target)
         else:
             raise HTTPException(status_code=400, detail="Unsupported protocol")
             
+        if should_stop():
+            return {"status": "cancelled"}
         return {"status": "sent"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        active_transmissions.pop(req.session_id, None)
 
 @router.post("/receive")
-async def tunnel_receive(request: Request):
+async def tunnel_receive(request: Request, user: dict = Depends(get_current_user)):
     # This endpoint receives incoming HTTP tunnel requests
     headers = dict(request.headers)
     payload_bytes = HTTPTunnel.receive_from_headers(headers)

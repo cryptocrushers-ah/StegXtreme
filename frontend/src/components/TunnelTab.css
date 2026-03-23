@@ -34,6 +34,36 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
+.protocol-selector {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 8px; /* Added gap to resolve buttons touching */
+}
+
+.proto-btn {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  border: none !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: none !important;
+  margin-top: 0 !important;
+}
+
+.proto-btn.active {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%) !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4) !important;
+}
+
 /* Receiver Logic Styles */
 .controls-header {
   display: flex;
@@ -84,6 +114,52 @@
   border: none !important;
   font-weight: 700 !important;
   margin-top: 1rem !important;
+}
+
+.stop-btn {
+  width: 100%;
+  padding: 1rem !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  border-radius: 12px;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 1rem !important;
+  animation: pulse-red 2s infinite;
+}
+
+.stop-btn:hover {
+  background: #ef4444 !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+.stop-btn .spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(239, 68, 68, 0.3);
+  border-top-color: #ef4444;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.stop-btn:hover .spinner {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 .lan-info {

