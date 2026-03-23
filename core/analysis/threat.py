@@ -91,7 +91,7 @@ class ThreatEngine:
 
         recommendations = ThreatEngine._generate_recommendations(risks, file_path, embed_strength, threat_level)
 
-        summary = f"One sentence plain English verdict: {threat_level} detection risk — "
+        summary = f"{threat_level} detection risk — "
         if safe_to_send:
             summary += "this file is likely safe to send."
         else:

@@ -361,6 +361,15 @@ body {
   overflow: hidden;
 }
 
+.tab-pane {
+  display: none;
+  width: 100%;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
 /* Top cyan shimmer on glass panel */
 .glass-panel::before {
   content: '';

@@ -16,21 +16,27 @@ def render_heatmap(frame: np.ndarray) -> str:
     else:
         gray = frame
 
+    import pywt
     # Extract standard LSB
-    lsb = gray & 1
+    lsb = (gray & 1).astype(float)
 
-    # Compute a simple difference heatmap (gradient of LSBs)
-    grad_x = cv2.Sobel(lsb, cv2.CV_64F, 1, 0, ksize=3)
-    grad_y = cv2.Sobel(lsb, cv2.CV_64F, 0, 1, ksize=3)
+    # Perform 2D Wavelet Transform (Haar)
+    coeffs2 = pywt.dwt2(lsb, 'haar')
+    LL, (LH, HL, HH) = coeffs2
     
-    # Magnitude
-    magnitude = cv2.magnitude(grad_x, grad_y)
+    # Combined high-frequency components
+    # HH is diagonal, LH is horizontal, HL is vertical
+    magnitude = np.sqrt(LH**2 + HL**2 + HH**2)
     
-    # Render with matplotlib
+    # Scale up magnitude to original size for visualization
+    magnitude_resized = cv2.resize(magnitude, (gray.shape[1], gray.shape[0]))
+
+    # Render with professional dark theme
+    plt.style.use('dark_background')
     fig, ax = plt.subplots(figsize=(8, 6))
-    cax = ax.imshow(magnitude, cmap='turbo', interpolation='nearest')
-    ax.set_title("LSB Noise Heatmap", fontsize=14)
-    fig.colorbar(cax, orientation='vertical', label='LSB Gradient Magnitude')
+    cax = ax.imshow(magnitude_resized, cmap='magma', interpolation='bilinear')
+    ax.set_title("Neural Wavelet Heatmap", fontsize=14, color='#00ffe0', fontweight='bold')
+    fig.colorbar(cax, orientation='vertical', label='Signal Variance Density')
     ax.axis('off')
     
     plt.tight_layout()

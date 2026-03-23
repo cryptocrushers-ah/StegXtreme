@@ -56,7 +56,7 @@ def _chi_square_lsb(gray: np.ndarray) -> float:
     """
     Chi-square test on the LSB histogram of a grayscale frame.
     Flags artificial uniformity (embedding).
-    Score = p_value, but only if it's extremely high (>0.999).
+    Score = p_value. Increased sensitivity for compressed media.
     """
     hist = np.bincount(gray.ravel(), minlength=256).astype(np.float64)
     pairs = hist.reshape(-1, 2)
@@ -70,9 +70,22 @@ def _chi_square_lsb(gray: np.ndarray) -> float:
     
     dof = len(pairs) - 1
     p_value = float(chi2_dist.sf(chi2_val, dof))
-    # Natural variations often yield high p-values. Flag only extreme proximity.
-    score = np.clip((p_value - 0.999) / 0.001, 0.0, 1.0)
+    # In stego files, p_value is extremely close to 1.0. 
+    # Even 0.95+ is suspicious in a compressed domain.
+    score = np.clip((p_value - 0.95) / 0.05, 0.0, 1.0)
     return float(score)
+
+def _wavelet_residual_variance(gray: np.ndarray) -> float:
+    """
+    Compute the variance of high-frequency wavelet coefficients.
+    Steganography injects high-frequency noise that deviates from natural image statistics.
+    """
+    import pywt
+    # Use Haar wavelet for fast, localized noise extraction
+    _, (LH, HL, HH) = pywt.dwt2(gray.astype(float), 'haar')
+    # Combine high-frequency variances
+    variance = float(np.var(LH) + np.var(HL) + np.var(HH))
+    return variance
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -100,46 +113,71 @@ class VideoAnalyzer:
 
         # --- Task 1: Baseline Calculation (First 5 frames) ---
         baseline_energies = []
+        baseline_wavelets = []
         for i in range(min(5, total_frames)):
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
             ret, frame = cap.read()
             if ret:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 baseline_energies.append(_dct_ac_energy(gray))
+                baseline_wavelets.append(_wavelet_residual_variance(gray))
         
         baseline_dct = float(np.mean(baseline_energies)) if baseline_energies else 1.0
+        baseline_w   = float(np.mean(baseline_wavelets)) if baseline_wavelets else 1.0
         # -----------------------------------------------------
 
         n = min(cls.N_FRAMES, total_frames)
         indices = [int(i * total_frames / n) for i in range(n)]
 
-        lsb_scores, dct_scores, chi_scores, deltas = [], [], [], []
-        prev_gray: np.ndarray | None = None
+        from concurrent.futures import ThreadPoolExecutor
 
+        def _analyze_single_frame(frame: np.ndarray) -> Dict[str, float]:
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            return {
+                "lsb": _lsb_noise_ratio(gray),
+                "dct": _dct_ac_energy(gray),
+                "chi": _chi_square_lsb(gray),
+                "wav": _wavelet_residual_variance(gray),
+                "gray": gray
+            }
+
+        frames_to_process = []
         for idx in indices:
             cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
             ret, frame = cap.read()
-            if not ret:
-                continue
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-            lsb_scores.append(_lsb_noise_ratio(gray))
-            
-            # Task 1: Normalize against baseline
-            raw_dct = _dct_ac_energy(gray)
-            dct_rel_score = (raw_dct - baseline_dct) / baseline_dct if baseline_dct > 0 else 0.0
-            # If relative change is low, it's natural variation
-            dct_suspicion = 0.0 if dct_rel_score < 0.15 else min(dct_rel_score, 1.0)
-            dct_scores.append(dct_suspicion)
-            
-            chi_scores.append(_chi_square_lsb(gray))
-
-            if prev_gray is not None:
-                delta = float(np.abs(gray.astype(np.int32) - prev_gray.astype(np.int32)).mean())
-                deltas.append(delta)
-            prev_gray = gray
-
+            if ret:
+                frames_to_process.append(frame)
         cap.release()
+
+        if not frames_to_process:
+            raise ValueError("No frames could be decoded from the video.")
+
+        with ThreadPoolExecutor() as executor:
+            frame_results = list(executor.map(_analyze_single_frame, frames_to_process))
+
+        lsb_scores = [r["lsb"] for r in frame_results]
+        chi_scores = [r["chi"] for r in frame_results]
+        
+        # DCT & Wavelet suspicion: Normalize against baseline
+        dct_scores = []
+        wav_scores = []
+        for r in frame_results:
+            # DCT
+            raw_dct = r["dct"]
+            dct_rel = (raw_dct - baseline_dct) / baseline_dct if baseline_dct > 0 else 0.0
+            dct_scores.append(np.clip(dct_rel * 4.0, 0, 1.0)) # Higher sensitivity
+            
+            # Wavelet
+            raw_wav = r["wav"]
+            wav_rel = (raw_wav - baseline_w) / baseline_w if baseline_w > 0 else 0.0
+            wav_scores.append(np.clip(wav_rel * 2.0, 0, 1.0)) # Detect signal disturbance
+
+        # Deltas for frame_delta_cv
+        deltas = []
+        for i in range(1, len(frame_results)):
+            g1, g2 = frame_results[i-1]["gray"], frame_results[i]["gray"]
+            delta = float(np.abs(g2.astype(np.int32) - g1.astype(np.int32)).mean())
+            deltas.append(delta)
 
         if not lsb_scores:
             raise ValueError("No frames could be decoded from the video.")
@@ -147,6 +185,7 @@ class VideoAnalyzer:
         feat_lsb = float(np.mean(lsb_scores))
         feat_dct = float(np.mean(dct_scores))
         feat_chi = float(np.mean(chi_scores))
+        feat_wav = float(np.mean(wav_scores))
 
         # Coefficient of variation of frame deltas (low → suspicious)
         if deltas:
@@ -158,20 +197,22 @@ class VideoAnalyzer:
             feat_delta_cv = 0.0
             delta_score = 0.0
 
-        # LSB noise: natural variation is around 0.5. Only flag extreme proximity (< 0.005).
-        lsb_suspicion = 1.0 - np.clip(abs(feat_lsb - 0.5) * 200.0, 0.0, 1.0)
+        # LSB noise: Tight proximity check
+        lsb_suspicion = 1.0 - np.clip(abs(feat_lsb - 0.5) * 100.0, 0.0, 1.0)
 
+        # High-sensitivity Forensic Matrix
         probability = float(np.clip(
-            0.35 * lsb_suspicion +
-            0.25 * feat_chi  +
-            0.20 * feat_dct  +
-            0.20 * delta_score,
+            0.10 * lsb_suspicion +
+            0.30 * feat_chi +
+            0.30 * feat_wav +
+            0.25 * feat_dct +
+            0.05 * delta_score,
             0.0, 1.0
         ))
 
-        if probability < 0.35:
+        if probability < 0.15: # Highly sensitive floor
             verdict = "CLEAN"
-        elif probability < 0.65:
+        elif probability < 0.45:
             verdict = "SUSPICIOUS"
         else:
             verdict = "LIKELY_STEGO"
@@ -180,9 +221,10 @@ class VideoAnalyzer:
             "probability": round(probability, 4),
             "verdict": verdict,
             "features": {
-                "lsb_noise":      round(lsb_suspicion, 4),
-                "dct_ac_energy":  round(feat_dct, 4),
-                "chi_square_lsb": round(feat_chi, 4),
-                "frame_delta_cv": round(delta_score, 4),
+                "lsb_noise":         round(lsb_suspicion, 4),
+                "chi_square_lsb":    round(feat_chi, 4),
+                "wavelet_variance":  round(feat_wav, 4),
+                "frequency_energy":  round(feat_dct, 4),
+                "frame_delta_cv":    round(delta_score, 4),
             },
         }

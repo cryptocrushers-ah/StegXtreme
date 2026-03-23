@@ -5,14 +5,13 @@ import EmbedTab from './components/EmbedTab';
 import ExtractTab from './components/ExtractTab';
 import AnalyzeTab from './components/AnalyzeTab';
 import VisualiseTab from './components/VisualiseTab';
-import TunnelTab from './components/TunnelTab';
 import LandingTab from './components/LandingTab';
 import ModelStats from './components/ModelStats';
 import GpuStatus from './components/GpuStatus';
 import WelcomeSplash from './components/WelcomeSplash';
 import './App.css';
 
-type Tab = 'embed' | 'extract' | 'analyze' | 'visualise' | 'tunnel';
+type Tab = 'embed' | 'extract' | 'analyze' | 'visualise';
 
 /* ── Star-warp canvas hook — same engine as LandingTab ── */
 function useStarCanvas(canvasRef: React.RefObject<HTMLCanvasElement | null>, active: boolean) {
@@ -135,7 +134,6 @@ const NAV: { id: Tab; icon: string; label: string }[] = [
   { id: 'extract', icon: '↑', label: 'Extract' },
   { id: 'analyze', icon: '⌕', label: 'Analyze' },
   { id: 'visualise', icon: '◎', label: 'Visualise' },
-  { id: 'tunnel', icon: '⇌', label: 'Tunnel' },
 ];
 
 function App() {
@@ -228,11 +226,18 @@ function App() {
         {/* Content */}
         <div className="content-area">
           <div className="glass-panel">
-            {activeTab === 'embed' && <EmbedTab />}
-            {activeTab === 'extract' && <ExtractTab />}
-            {activeTab === 'analyze' && <AnalyzeTab />}
-            {activeTab === 'visualise' && <VisualiseTab />}
-            {activeTab === 'tunnel' && <TunnelTab />}
+            <div className={`tab-pane ${activeTab === 'embed' ? 'active' : ''}`}>
+              <EmbedTab />
+            </div>
+            <div className={`tab-pane ${activeTab === 'extract' ? 'active' : ''}`}>
+              <ExtractTab />
+            </div>
+            <div className={`tab-pane ${activeTab === 'analyze' ? 'active' : ''}`}>
+              <AnalyzeTab />
+            </div>
+            <div className={`tab-pane ${activeTab === 'visualise' ? 'active' : ''}`}>
+              <VisualiseTab />
+            </div>
           </div>
         </div>
 

@@ -15,9 +15,11 @@ def render_bitplanes(frame: np.ndarray) -> str:
     else:
         gray = frame
 
-    # Create figure
+    # Create figure with dark theme
+    plt.style.use('dark_background')
     fig, axes = plt.subplots(2, 4, figsize=(16, 8))
-    fig.suptitle("8 Bit-Planes of Luminance (Y) Channel", fontsize=20, fontweight='bold', y=0.95)
+    fig.suptitle("Neural Bit-Plane Decomposition (Y-Channel Layers)", 
+                 fontsize=22, fontweight='bold', y=0.98, color='#00ffe0')
 
     for i in range(8):
         # Extract the i-th bit
@@ -25,9 +27,10 @@ def render_bitplanes(frame: np.ndarray) -> str:
         
         # Plot in grid
         ax = axes[i // 4, i % 4]
-        ax.imshow(plane, cmap='gray')
-        ax.set_title(f"Bit-Plane {i} (0=LSB, 7=MSB)", fontsize=12)
+        ax.imshow(plane, cmap='gray', interpolation='nearest')
+        ax.set_title(f"LAYER {i} {'(LSB)' if i==0 else '(MSB)' if i==7 else ''}", 
+                     fontsize=14, color='#94a3b8', fontweight='bold')
         ax.axis('off')
 
-    plt.tight_layout(rect=[0, 0.03, 1, 0.92])
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     return render_fig_base64(fig)

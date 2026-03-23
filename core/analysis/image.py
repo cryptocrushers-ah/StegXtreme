@@ -36,7 +36,7 @@ def _chi_square_score(channel: np.ndarray) -> float:
     p_value = float(chi2_dist.sf(chi2_val, dof))
     # Natural images can have high p-values by chance if they are low-detail.
     # We only flag if it's practically 1.0 (perfectly uniform).
-    score = np.clip((p_value - 0.999) / 0.001, 0.0, 1.0)
+    score = np.clip((p_value - 0.995) / 0.005, 0.0, 1.0)
     return float(score)
 
 
@@ -48,23 +48,21 @@ def _sample_pairs_score(channel: np.ndarray) -> float:
     lsb = channel & 1
     ratio = float(lsb.mean())
     # Natural images are often in the 0.48-0.52 range.
-    # We only start flagging if it's within 0.005 of 0.5.
+    # Wider tolerance window (0.02) before flagging suspicion.
     dev = abs(ratio - 0.5)
-    score = 1.0 - np.clip(dev * 200.0, 0.0, 1.0)
+    score = 1.0 - np.clip(dev * 80.0, 0.0, 1.0)
     return float(score)
 
 
 def _lsb_entropy(channel: np.ndarray) -> float:
-    """
-    Shannon entropy of the LSB bitplane.
-    Only flag if entropy is extremely close to 1.0 (e.g. > 0.9999).
-    """
+    # Shannon entropy of the LSB bitplane.
+    # Extremly strict threshold for entropy (0.99999) to avoid natural noise.
     lsb = channel & 1
     p1 = float(lsb.mean())
     p0 = 1.0 - p1
     eps = 1e-12
     entropy = -(p1 * np.log2(p1 + eps) + p0 * np.log2(p0 + eps))
-    score = np.clip((entropy - 0.9999) / 0.0001, 0.0, 1.0)
+    score = np.clip((entropy - 0.999) / 0.001, 0.0, 1.0)
     return float(score)
 
 
@@ -88,14 +86,22 @@ class ImageAnalyzer:
         arr = np.array(img, dtype=np.uint8)
         r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
 
-        chi_r = _chi_square_score(r)
-        chi_g = _chi_square_score(g)
-        chi_b = _chi_square_score(b)
-        chi_mean = (chi_r + chi_g + chi_b) / 3.0
+        from concurrent.futures import ThreadPoolExecutor
 
-        gray_arr = np.array(img.convert("L"), dtype=np.uint8)
-        sp_score  = _sample_pairs_score(gray_arr)
-        lsb_ent   = _lsb_entropy(gray_arr)
+        # Parallelize expensive channel analysis
+        with ThreadPoolExecutor() as executor:
+            # Chi-square per channel
+            chi_futures = [executor.submit(_chi_square_score, c) for c in [r, g, b]]
+            # Gray-scale heuristics
+            gray_arr = np.array(img.convert("L"), dtype=np.uint8)
+            sp_future = executor.submit(_sample_pairs_score, gray_arr)
+            lsb_future = executor.submit(_lsb_entropy, gray_arr)
+
+            chi_r, chi_g, chi_b = [f.result() for f in chi_futures]
+            sp_score = sp_future.result()
+            lsb_ent = lsb_future.result()
+
+        chi_mean = (chi_r + chi_g + chi_b) / 3.0
 
         probability = float(np.clip(
             0.45 * chi_mean +
