@@ -1,10 +1,10 @@
 {
-  "venvPath": "c:/Users/SHASHI/StegXtreme",
-  "venv": ".venv",
+  "venvPath": "c:/Users/adity/Desktop/Steg/StegXtreme",
+  "venv": "venv",
   "pythonVersion": "3.14",
   "pythonPlatform": "Windows",
   "extraPaths": [
-    "c:\\Users\\SHASHI\\StegXtreme"
+    "c:/Users/adity/Desktop/Steg/StegXtreme"
   ],
   "include": [
     "backend",

@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import UploadFile, HTTPException
 import magic
 
-MAX_FILE_SIZE = 2048 * 1024 * 1024  # 2GB
+MAX_FILE_SIZE = 50000 * 1024 * 1024  # 50GB, effectively removed
 
 ALLOWED_MIME_TYPES = {
     "image": ["image/png", "image/jpeg", "image/bmp"],
@@ -30,6 +30,13 @@ async def validate_file(file: UploadFile, expected_category: Optional[str] = Non
             raise HTTPException(
                 status_code=400, 
                 detail=f"Invalid file type: {mime}. Expected {expected_category} ({', '.join(allowed)})"
+            )
+    else:
+        all_allowed = [m for cat in ALLOWED_MIME_TYPES.values() for m in cat]
+        if mime not in all_allowed:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid or unsupported file type: {mime}. Expected an image, audio, or video file."
             )
     
     return mime

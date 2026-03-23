@@ -42,18 +42,8 @@ class TunnelSendRequest(BaseModel):
     target: str # IP or URL
     session_id: str
 
-class TunnelStopRequest(BaseModel):
-    session_id: str
-
-@router.post("/stop")
-async def tunnel_stop(req: TunnelStopRequest, user: dict = Depends(get_current_user)):
-    if req.session_id in active_transmissions:
-        active_transmissions[req.session_id] = True
-        return {"status": "stopping"}
-    return {"status": "not_active"}
-
-@router.post("/send")
-async def tunnel_send(req: TunnelSendRequest, user: dict = Depends(get_current_user)):
+@router.post("/send", dependencies=[Depends(get_current_user)])
+async def tunnel_send(req: TunnelSendRequest):
     payload_bytes = req.payload.encode('utf-8')
     
     # Log the outgoing packet

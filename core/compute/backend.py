@@ -2,9 +2,14 @@ import numpy as np
 try:
     import cupy as cp
     GPU_ENABLED = True
-except ImportError:
+    try:
+        COMPUTE_DEVICE = cp.cuda.runtime.getDeviceProperties(0)['name'].decode()
+    except Exception:
+        COMPUTE_DEVICE = "GPU (CuPy Acceleration)"
+except Exception:
     cp = np  # CuPy is not available, will use NumPy instead
     GPU_ENABLED = False
+    COMPUTE_DEVICE = "CPU"
 
 def dwt2(arr):
     f = cp.asarray(arr).astype(cp.float32)   # entry: to GPU

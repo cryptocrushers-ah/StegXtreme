@@ -8,6 +8,7 @@ import VisualiseTab from './components/VisualiseTab';
 import TunnelTab from './components/TunnelTab';
 import LandingTab from './components/LandingTab';
 import ModelStats from './components/ModelStats';
+import GpuStatus from './components/GpuStatus';
 import WelcomeSplash from './components/WelcomeSplash';
 import './App.css';
 
@@ -216,8 +217,8 @@ function App() {
           <div className="top-bar-left">
             <ModelStats />
           </div>
-          <div className="top-bar-right">
-            <div className="user-badge">
+          <div className="top-bar-right" style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+            <GpuStatus /><div className="user-badge">
               <span className="user-status-dot" />
               Admin
             </div>

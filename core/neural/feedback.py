@@ -53,6 +53,8 @@ class FeedbackEngine:
         pass
 
     def _retrain_step(self):
+        # Neural training bypassed for raw logic steganography usage
+        return
         with self._lock:
             if getattr(self, '_actually_training', False):
                 return
@@ -102,6 +104,8 @@ class FeedbackEngine:
 
     def evaluate_file(self, path: str) -> bool:
         """Runs the detector on the first frame/patch of a file and records feedback."""
+        # Neural evaluation bypassed for raw logic steganography usage
+        return False
         if not HAS_NEURAL:
             return False
             

@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 from typing import List, Optional, Tuple
+import urllib.parse
 
 @dataclass
 class ThreatReport:
@@ -138,6 +139,8 @@ class ThreatEngine:
 
     @staticmethod
     def _check_texture_risk(file_path: str) -> Tuple[str, str]:
+        file_path = urllib.parse.unquote(file_path)
+        file_path = os.path.abspath(file_path)
         try:
             img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
             if img is None:
