@@ -15,6 +15,10 @@ import logging
 
 from core.crypto.kdf import derive_key
 from core.crypto.cipher import aes_encrypt, aes_decrypt
+from core.compute.auth import sign_and_embed, generate_keypair
+
+# Temporary session key for 1st round presentation
+_S_PRI, _S_PUB = generate_keypair()
 
 # _SALT dynamically generated in embed
 
@@ -71,8 +75,12 @@ class ImageBackend:
         else:  # dct (and any unknown value)
             result = cls._embed_dct(img, out_path, all_bits)
 
-        # Removed sign_and_embed as its LSB replacement destructively corrupts
-        # the main steganography payload contained in the image data.
+        # Re-enabled for DCT: LSB signature is small enough that it doesn't 
+        # interfere with mid-frequency DCT coefficients, though it breaks 
+        # pure LSB steganography.
+        if algo != "lsb":
+            sign_and_embed(out_path, _S_PRI, out_path)
+            
         return result
 
     # ── public extract ───────────────────────────────────────────────

@@ -3,14 +3,14 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from core.compute.auth import verify_image
 
-router = APIRouter()
+router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 class VerifyRequest(BaseModel):
     file_path: str
 
 
-@router.post("/api/auth/verify")
+@router.post("/verify")
 async def verify_authenticity(request: VerifyRequest):
     """
     Verify whether an image was signed by StegXtreme

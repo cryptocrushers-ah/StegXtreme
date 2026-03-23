@@ -126,6 +126,7 @@ async def analyze_file(file: UploadFile = File(...)) -> Dict[str, Any]:
             result = VideoAnalyzer.analyze(in_path)
 
         result["media_type"] = media_type
+        result["file_path"] = in_path  # Return the temp path for verification
 
         # Perform threat analysis using the unified ThreatEngine
         threat_report = ThreatEngine.analyze(in_path, result["probability"])
@@ -150,11 +151,7 @@ async def analyze_file(file: UploadFile = File(...)) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-    finally:
-        if in_path and os.path.exists(in_path):
-            try:
-                os.remove(in_path)
-            except OSError:
-                pass
+    # File is NOT deleted here to allow the Verification engine to check it.
+    # storage/temp is periodically cleaned by the system.
 
-    return result
+    return result

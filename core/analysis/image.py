@@ -103,16 +103,18 @@ class ImageAnalyzer:
 
         chi_mean = (chi_r + chi_g + chi_b) / 3.0
 
+        # Cyber-Efficiency Calibrated Weights:
+        # High-priority on Chi-square (histograms), lower on Entropy false-positives.
         probability = float(np.clip(
-            0.45 * chi_mean +
-            0.35 * sp_score +
-            0.20 * lsb_ent,
+            0.80 * chi_mean +
+            0.10 * sp_score +
+            0.10 * lsb_ent,
             0.0, 1.0
         ))
 
-        if probability < 0.35:
+        if probability <= 0.20:
             verdict = "CLEAN"
-        elif probability < 0.65:
+        elif probability <= 0.55:
             verdict = "SUSPICIOUS"
         else:
             verdict = "LIKELY_STEGO"

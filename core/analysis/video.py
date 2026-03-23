@@ -200,19 +200,19 @@ class VideoAnalyzer:
         # LSB noise: Tight proximity check
         lsb_suspicion = 1.0 - np.clip(abs(feat_lsb - 0.5) * 100.0, 0.0, 1.0)
 
-        # High-sensitivity Forensic Matrix
+        # High-sensitivity Forensic Matrix (Calibrated for Cyber-Efficiency)
         probability = float(np.clip(
-            0.10 * lsb_suspicion +
-            0.30 * feat_chi +
-            0.30 * feat_wav +
+            0.05 * lsb_suspicion +
+            0.50 * feat_chi +
+            0.15 * feat_wav +
             0.25 * feat_dct +
             0.05 * delta_score,
             0.0, 1.0
         ))
 
-        if probability < 0.15: # Highly sensitive floor
+        if probability <= 0.20:
             verdict = "CLEAN"
-        elif probability < 0.45:
+        elif probability <= 0.55:
             verdict = "SUSPICIOUS"
         else:
             verdict = "LIKELY_STEGO"
