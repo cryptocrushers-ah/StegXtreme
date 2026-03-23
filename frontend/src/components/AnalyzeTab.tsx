@@ -14,6 +14,7 @@ interface AnalysisResult {
   probability: number;
   verdict: 'CLEAN' | 'SUSPICIOUS' | 'LIKELY_STEGO';
   features: Record<string, number>;
+  threat?: ThreatReport;
 }
 
 interface ThreatReport {
@@ -374,20 +375,8 @@ export default function AnalyzeTab() {
         body: formData,
       });
       setResult(data);
-
-      try {
-        const threatData: ThreatReport = await apiRequest('/api/analyze/threat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            file_path: file.name, 
-            detection_prob: data.probability,
-            embed_strength: null
-          }),
-        });
-        setThreatReport(threatData);
-      } catch (threatErr) {
-        console.error("Threat analysis failed:", threatErr);
+      if (data.threat) {
+        setThreatReport(data.threat);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unknown error');

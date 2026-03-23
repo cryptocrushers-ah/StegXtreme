@@ -18,6 +18,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from core.analysis.image import ImageAnalyzer
 from core.analysis.audio import AudioAnalyzer
 from core.analysis.video import VideoAnalyzer
+from core.analysis.threat import ThreatEngine
 from backend.utils.validation import validate_file
 
 router = APIRouter()
@@ -125,6 +126,23 @@ async def analyze_file(file: UploadFile = File(...)) -> Dict[str, Any]:
             result = VideoAnalyzer.analyze(in_path)
 
         result["media_type"] = media_type
+
+        # Perform threat analysis using the unified ThreatEngine
+        threat_report = ThreatEngine.analyze(in_path, result["probability"])
+        result["threat"] = {
+            "threat_level":         threat_report.threat_level,
+            "threat_color":         threat_report.threat_color,
+            "threat_score":         threat_report.threat_score,
+            "primary_risk":         threat_report.primary_risk,
+            "risks":                threat_report.risks,
+            "recommendations":      threat_report.recommendations,
+            "file_type_assessment": threat_report.file_type_assessment,
+            "file_type_risk":       threat_report.file_type_risk,
+            "strength_assessment":  threat_report.strength_assessment,
+            "strength_risk":        threat_report.strength_risk,
+            "safe_to_send":         threat_report.safe_to_send,
+            "summary":              threat_report.summary
+        }
 
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
