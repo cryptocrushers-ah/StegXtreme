@@ -169,13 +169,6 @@ function ThreatDashboard({ report }: { report: ThreatReport }) {
       <div className="threat-content">
         <p className="summary-text"><strong>Verdict:</strong> {report.summary}</p>
         
-        <div className="primary-risk-box">
-          <span className="risk-icon">⚠️</span>
-          <div className="risk-text">
-            <strong>Primary Risk Factor</strong>
-            <p>{report.primary_risk}</p>
-          </div>
-        </div>
 
         <div className="risk-grid">
           <div className="risk-card">
@@ -247,6 +240,8 @@ function FeatureBreakdown({ features }: { features: Record<string, number> }) {
     dct_ac_energy: 'Frequency Distortion',
     chi_square_lsb: 'Statistical Uniformity',
     frame_delta_cv: 'Temporal Consistency',
+    wavelet_variance: 'Neural Noise Signature',
+    frequency_energy: 'Frequency Distortion',
     chi_square_r: 'Red Channel Anomaly',
     chi_square_g: 'Green Channel Anomaly',
     chi_square_b: 'Blue Channel Anomaly',

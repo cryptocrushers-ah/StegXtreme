@@ -29,30 +29,33 @@ def render_timeline(video_path: str, n_frames: int = 30) -> str:
     else:
         frame_indices = np.linspace(0, total_frames - 1, n_frames, dtype=int).tolist()
 
-    timestamps = []
-    lh_variances = []
-    hl_variances = []
+    from concurrent.futures import ThreadPoolExecutor
 
+    def _process_frame_wavelet(frame_tuple: tuple[int, np.ndarray]) -> tuple[int, float, float, float]:
+        idx, frame = frame_tuple
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).astype(float)
+        _, (LH, HL, _) = pywt.dwt2(gray, 'haar')
+        return idx, idx / video_fps, float(np.var(LH)), float(np.var(HL))
+
+    frames_to_process = []
     for idx in frame_indices:
         cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
         ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Record timestamp (in seconds)
-        timestamps.append(idx / video_fps)  # type: ignore
-
-        # Convert to Grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).astype(float)
-        
-        # Haar Wavelet
-        _, (LH, HL, _) = pywt.dwt2(gray, 'haar')
-        
-        # Store variance
-        lh_variances.append(np.var(LH))
-        hl_variances.append(np.var(HL))
-
+        if ret:
+            frames_to_process.append((idx, frame))
     cap.release()
+
+    if not frames_to_process:
+        raise ValueError("No frames could be read from video.")
+
+    with ThreadPoolExecutor() as executor:
+        results = list(executor.map(_process_frame_wavelet, frames_to_process))
+
+    # Sort results by index to keep time order
+    results.sort(key=lambda x: x[0])
+    timestamps = [r[1] for r in results]
+    lh_variances = [r[2] for r in results]
+    hl_variances = [r[3] for r in results]
 
     if not timestamps:
         raise ValueError("No frames could be read from video.")
@@ -61,19 +64,19 @@ def render_timeline(video_path: str, n_frames: int = 30) -> str:
     combined_variance = np.array(lh_variances) + np.array(hl_variances)
 
     # Plot Timeline Heatmap strip
-    # We create a 1D array heatmap
+    plt.style.use('dark_background')
     fig, ax = plt.subplots(figsize=(12, 3))
     
     # Reshape combined variance to 1xN for imshow
     strip = combined_variance.reshape(1, -1)
     
-    cax = ax.imshow(strip, aspect='auto', cmap='jet', extent=[timestamps[0], timestamps[-1], 0, 1])
+    cax = ax.imshow(strip, aspect='auto', cmap='magma', extent=[timestamps[0], timestamps[-1], 0, 1])
     
     ax.set_yticks([])
-    ax.set_title("Wavelet High-Frequency Variance Timeline (Red = High Noise / Suspect)", fontsize=14)
-    ax.set_xlabel("Time (seconds)", fontsize=12)
+    ax.set_title("Neural Wavelet Frequency Timeline (Magma = Forensic Variance)", fontsize=14, color='#00ffe0', fontweight='bold')
+    ax.set_xlabel("Time (seconds)", fontsize=12, color='#94a3b8')
     
-    fig.colorbar(cax, orientation='horizontal', pad=0.3, label='LH + HL Variance')
+    fig.colorbar(cax, orientation='horizontal', pad=0.35, label='Signal Variance Density')
 
     plt.tight_layout()
     return render_fig_base64(fig)

@@ -32,6 +32,7 @@ import io
 import shutil
 import subprocess
 import tempfile
+import lzma
 from queue import Queue
 from threading import Thread
 from PIL import Image
@@ -50,12 +51,13 @@ except ImportError:
 JPEG_QUALITY    = 82
 EMBED_STRENGTH  = 18.0
 HEADER_STRENGTH = 80.0
-COEFFS_PER_BIT  = 256
-ECC_REPEAT      = 3
+COEFFS_PER_BIT  = 1
+ECC_REPEAT      = 1
 
 MAGIC      = b'\xDE\xAD\xBE\xEF'
 TYPE_TEXT  = 0x01
 TYPE_IMAGE = 0x02
+TYPE_COMPRESSED = 0x08  # Flag bit for compression
 
 HEADER_COEFFS = 32 * COEFFS_PER_BIT   # reserved in LH of frame 0
 
@@ -279,49 +281,68 @@ def _mux_audio(video: str, audio: str, out: str) -> bool:
 def _process_frame_embed(frame, ecc_bits_unpacked, bit_idx,
                          total_bits, frame_idx, H, W,
                          is_frame0, total_ecc_B):
-    """Returns (modified_frame, bits_embedded). Skips DWT on pass-through frames."""
+    """Returns (modified_frame, bits_embedded). Uses all channels and all AC subbands for max capacity."""
     if not is_frame0 and bit_idx >= total_bits:
-        return frame, 0   # Pass-through: no DWT needed
+        return frame, 0
 
     ycrcb = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
-    Y     = ycrcb[:, :, 0].astype(np.float32)
-    LL, LH, HL, HH = dwt2(Y)
+    channels = [ycrcb[:, :, 0], ycrcb[:, :, 1], ycrcb[:, :, 2]]
+    modified_channels = []
+    current_bit_idx = bit_idx
 
-    if is_frame0:
-        lh_flat = LH.ravel().copy()
-        hl_flat = HL.ravel().copy()
+    for ch_idx, ch in enumerate(channels):
+        if current_bit_idx >= total_bits and not (is_frame0 and ch_idx == 0):
+            modified_channels.append(ch)
+            continue
+            
+        fch = ch.astype(np.float32)
+        LL, LH, HL, HH = dwt2(fch)
+        
+        # We always process frame 0 channel 0 for the header
+        if is_frame0 and ch_idx == 0:
+            lh_flat = LH.ravel().copy()
+            hl_flat = HL.ravel().copy()
+            hh_flat = HH.ravel().copy()
 
-        # Embed 32-bit header
-        for i in range(32):
-            s, e = i * COEFFS_PER_BIT, (i + 1) * COEFFS_PER_BIT
-            c    = _make_carrier_single(COEFFS_PER_BIT, _header_seed(i))
-            bit  = (total_ecc_B >> (31 - i)) & 1
-            lh_flat[s:e] += (cp.float32(HEADER_STRENGTH) if bit
-                             else cp.float32(-HEADER_STRENGTH)) * c
+            # Embed 32-bit header in LH of Frame 0
+            for i in range(32):
+                s, e = i * COEFFS_PER_BIT, (i + 1) * COEFFS_PER_BIT
+                c    = _make_carrier_single(COEFFS_PER_BIT, _header_seed(i))
+                bit  = (total_ecc_B >> (31 - i)) & 1
+                lh_flat[s:e] += (cp.float32(HEADER_STRENGTH) if bit
+                                 else cp.float32(-HEADER_STRENGTH)) * c
 
-        pr  = cp.concatenate([lh_flat[HEADER_COEFFS:], hl_flat])
-        n   = min(total_bits - bit_idx, len(pr) // COEFFS_PER_BIT)
-        if n > 0:
-            _ss_embed(pr, ecc_bits_unpacked[bit_idx:], n, frame_idx, EMBED_STRENGTH)
-        lh_split = len(lh_flat) - HEADER_COEFFS
-        lh_flat[HEADER_COEFFS:] = pr[:lh_split]
-        hl_flat[:] = pr[lh_split: lh_split + len(hl_flat)]
-        LH = lh_flat.reshape(LH.shape)
-        HL = hl_flat.reshape(HL.shape)
-        bits_done = n
+            # Embed remainder of payload in HL and HH (and LH after header)
+            pr = cp.concatenate([lh_flat[HEADER_COEFFS:], hl_flat, hh_flat])
+            n  = min(total_bits - current_bit_idx, len(pr) // COEFFS_PER_BIT)
+            if n > 0:
+                _ss_embed(pr, ecc_bits_unpacked[current_bit_idx:], n, frame_idx * 10 + ch_idx, EMBED_STRENGTH)
+                current_bit_idx += n
+            
+            # Reconstruct
+            lh_split = len(lh_flat) - HEADER_COEFFS
+            lh_flat[HEADER_COEFFS:] = pr[:lh_split]
+            hl_flat[:] = pr[lh_split: lh_split + HL.size]
+            hh_flat[:] = pr[lh_split + HL.size:]
+            
+            LH, HL, HH = lh_flat.reshape(LH.shape), hl_flat.reshape(HL.shape), hh_flat.reshape(HH.shape)
+        else:
+            combined = cp.concatenate([LH.ravel(), HL.ravel(), HH.ravel()])
+            n        = min(total_bits - current_bit_idx, len(combined) // COEFFS_PER_BIT)
+            if n > 0:
+                _ss_embed(combined, ecc_bits_unpacked[current_bit_idx:], n, frame_idx * 10 + ch_idx, EMBED_STRENGTH)
+                current_bit_idx += n
+            
+            mid1 = LH.size
+            mid2 = mid1 + HL.size
+            LH  = combined[:mid1].reshape(LH.shape)
+            HL  = combined[mid1:mid2].reshape(HL.shape)
+            HH  = combined[mid2:].reshape(HH.shape)
 
-    else:
-        combined = cp.concatenate([LH.ravel(), HL.ravel()])
-        n        = min(total_bits - bit_idx, len(combined) // COEFFS_PER_BIT)
-        _ss_embed(combined, ecc_bits_unpacked[bit_idx:], n, frame_idx, EMBED_STRENGTH)
-        mid = LH.size
-        LH  = combined[:mid].reshape(LH.shape)
-        HL  = combined[mid: mid + HL.size].reshape(HL.shape)
-        bits_done = n
+        modified_channels.append(idwt2(LL, LH, HL, HH).astype(np.uint8))
 
-    Y_mod = idwt2(LL, LH, HL, HH)
-    ycrcb[:, :, 0] = Y_mod.astype(np.uint8)
-    return cv2.cvtColor(ycrcb, cv2.COLOR_YCrCb2BGR), bits_done
+    ycrcb_mod = cv2.merge(modified_channels)
+    return cv2.cvtColor(ycrcb_mod, cv2.COLOR_YCrCb2BGR), (current_bit_idx - bit_idx)
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -346,6 +367,14 @@ def embed(video_in:   str,
     else:
         print("  Payload  : image"); raw = prepare_image(image_path); dtype = TYPE_IMAGE
 
+    # Modern Cyber-efficiency: Always attempt compression for large payloads
+    original_size = len(raw)
+    compressed = lzma.compress(raw)
+    if len(compressed) < original_size:
+        raw = compressed
+        dtype |= TYPE_COMPRESSED
+        print(f"  LZMA Comp: {original_size} → {len(raw)} bytes ({len(raw)/original_size*100:.1f}%)")
+
     packet      = pack(raw, dtype)
     encrypted   = aes_encrypt(packet, password)
     ecc_data    = ecc_encode(encrypted)
@@ -363,10 +392,10 @@ def embed(video_in:   str,
     H       = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    lh_hl_sz   = (H // 2) * (W // 2) * 2
-    cap_frame0 = max(0, (lh_hl_sz // 2 - HEADER_COEFFS) // COEFFS_PER_BIT
-                      + lh_hl_sz // 2 // COEFFS_PER_BIT)
-    total_cap  = cap_frame0 + lh_hl_sz // COEFFS_PER_BIT * max(0, nframes - 1)
+    lh_hl_hh_sz = (H // 2) * (W // 2) * 3
+    # Capacity across 3 channels (YCrCb)
+    cap_frame0 = max(0, (lh_hl_hh_sz - HEADER_COEFFS) // COEFFS_PER_BIT)
+    total_cap  = cap_frame0 + (lh_hl_hh_sz * 3) // COEFFS_PER_BIT * max(0, nframes - 1)
 
     print(f"  Video    : {W}×{H} @ {fps:.1f}fps | {nframes} frames")
     print(f"  Capacity : {total_cap} bits  |  Need: {total_bits} bits  "
@@ -492,33 +521,37 @@ def extract(video_in:          str,
         if not ret: break
 
         ycrcb = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
-        Y     = ycrcb[:, :, 0].astype(np.float32)
-        _, LH, HL, _ = dwt2(Y)
+        ch_list = [ycrcb[:, :, 0], ycrcb[:, :, 1], ycrcb[:, :, 2]]
 
-        if frame_idx == 0:
-            lh_flat = LH.ravel()
-            val = 0
-            for i in range(32):
-                s, e = i * COEFFS_PER_BIT, (i + 1) * COEFFS_PER_BIT
-                c    = _make_carrier_single(COEFFS_PER_BIT, _header_seed(i))
-                val  = (val << 1) | (1 if float(cp.dot(lh_flat[s:e], c)) > 0 else 0)
-            total_ecc_B = val; total_bits = total_ecc_B * 8
-            print(f"\n  Header  : {total_ecc_B} ECC bytes ({total_bits} bits)")
-            print("  Loading ", end='', flush=True)
-
-            pr  = cp.concatenate([lh_flat[HEADER_COEFFS:], HL.ravel()])
-            n   = min(total_bits, len(pr) // COEFFS_PER_BIT)
-            collected.append(_ss_extract(pr, n, frame_idx))
-            bit_idx += n
-
-        else:
+        for ch_idx, ch in enumerate(ch_list):
             if total_bits is not None and bit_idx >= total_bits:
-                break  # Early exit
-            combined  = cp.concatenate([LH.ravel(), HL.ravel()])
-            remaining = (total_bits - bit_idx) if total_bits else len(combined) // COEFFS_PER_BIT
-            n         = min(remaining, len(combined) // COEFFS_PER_BIT)
-            collected.append(_ss_extract(combined, n, frame_idx))
-            bit_idx += n
+                break
+                
+            fch = ch.astype(np.float32)
+            _, LH, HL, HH = dwt2(fch)
+
+            if frame_idx == 0 and ch_idx == 0:
+                lh_flat = LH.ravel()
+                val = 0
+                for i in range(32):
+                    s, e = i * COEFFS_PER_BIT, (i + 1) * COEFFS_PER_BIT
+                    c    = _make_carrier_single(COEFFS_PER_BIT, _header_seed(i))
+                    val  = (val << 1) | (1 if float(cp.dot(lh_flat[s:e], c)) > 0 else 0)
+                total_ecc_B = val; total_bits = total_ecc_B * 8
+                print(f"\n  Header  : {total_ecc_B} ECC bytes ({total_bits} bits)")
+                print("  Loading ", end='', flush=True)
+
+                pr = cp.concatenate([lh_flat[HEADER_COEFFS:], HL.ravel(), HH.ravel()])
+                n  = min(total_bits, len(pr) // COEFFS_PER_BIT)
+                collected.append(_ss_extract(pr, n, frame_idx * 10 + ch_idx))
+                bit_idx += n
+            else:
+                combined  = cp.concatenate([LH.ravel(), HL.ravel(), HH.ravel()])
+                remaining = (total_bits - bit_idx) if total_bits else len(combined) // COEFFS_PER_BIT
+                n         = min(remaining, len(combined) // COEFFS_PER_BIT)
+                if n > 0:
+                    collected.append(_ss_extract(combined, n, frame_idx * 10 + ch_idx))
+                    bit_idx += n
 
         frame_idx += 1
         if frame_idx % 60 == 0: print('.', end='', flush=True)
@@ -547,6 +580,12 @@ def extract(video_in:          str,
         raise ValueError("Decryption failed — wrong password or corrupted data.")
 
     dtype, payload = unpack(packet)
+    
+    # Handle compression
+    if dtype & TYPE_COMPRESSED:
+        print(f"  LZMA     : Decompressing payload...")
+        payload = lzma.decompress(payload)
+        dtype &= ~TYPE_COMPRESSED
 
     if dtype == TYPE_TEXT:
         result = payload.decode('utf-8')
