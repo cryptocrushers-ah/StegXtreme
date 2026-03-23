@@ -15,6 +15,7 @@ interface AnalysisResult {
   verdict: 'CLEAN' | 'SUSPICIOUS' | 'LIKELY_STEGO';
   features: Record<string, number>;
   threat?: ThreatReport;
+  file_path?: string;
 }
 
 interface ThreatReport {
@@ -116,12 +117,11 @@ function AuthVerify({ filePath }: { filePath: string }) {
               </div>
             </div>
           )}
-
-          {report.verdict === 'UNSIGNED' && (
-            <div className="unsigned-notice">
-              <p>No steganographic signature found. This file was not originated from StegXtreme.</p>
-            </div>
-          )}
+         <p className="auth-status-desc">
+          {report.is_authentic 
+            ? `Verified pixel signature. This file was strictly originated from StegXtreme.` 
+            : `No steganographic signature found. This file was not originated from StegXtreme.`}
+        </p>
           
           <button className="reverify-btn" onClick={() => setReport(null)}>Reset</button>
         </div>
@@ -480,7 +480,7 @@ export default function AnalyzeTab() {
           )}
 
           <div style={{ marginTop: '2rem' }}>
-            {file && <AuthVerify filePath={file.name} />}
+            {result?.file_path && <AuthVerify filePath={result.file_path} />}
           </div>
 
           <div style={{ marginTop: '2.5rem', opacity: 0.6, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2.5rem' }}>

@@ -174,15 +174,15 @@ class AudioAnalyzer:
         feat_flat  = _spectral_flatness_score(y, sr)
 
         probability = float(np.clip(
-            0.45 * feat_mfcc +
-            0.30 * feat_lsb  +
+            0.50 * feat_mfcc +
+            0.25 * feat_lsb  +
             0.25 * feat_flat,
             0.0, 1.0
         ))
 
-        if probability < 0.35:
+        if probability <= 0.20:
             verdict = "CLEAN"
-        elif probability < 0.65:
+        elif probability <= 0.55:
             verdict = "SUSPICIOUS"
         else:
             verdict = "LIKELY_STEGO"
