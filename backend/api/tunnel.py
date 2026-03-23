@@ -65,8 +65,8 @@ async def tunnel_send(req: TunnelSendRequest):
         if req.protocol.lower() == "dns":
             await loop.run_in_executor(None, DNSTunnel.send, payload_bytes, req.target, req.session_id, should_stop)
         elif req.protocol.lower() == "http":
-            # Even if HTTP is one request, running in executor avoids blocking event loop
-            await loop.run_in_executor(None, HTTPTunnel.send, payload_bytes, req.target)
+            # Using session_id and should_stop for chunked HTTP sending
+            await loop.run_in_executor(None, HTTPTunnel.send, payload_bytes, req.target, req.session_id, should_stop)
         else:
             raise HTTPException(status_code=400, detail="Unsupported protocol")
             

