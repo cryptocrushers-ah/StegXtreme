@@ -29,8 +29,9 @@ class HTTPTunnel:
         """
         Extracts and decodes payload from headers.
         """
-        req_id = headers.get("X-Request-ID", "")
-        trace_id = headers.get("X-Trace-ID", "")
+        # FastAPI's dict(request.headers) uses lowercase keys.
+        req_id = headers.get("x-request-id") or headers.get("X-Request-ID", "")
+        trace_id = headers.get("x-trace-id") or headers.get("X-Trace-ID", "")
         
         full_encoded = req_id + trace_id
         if not full_encoded:

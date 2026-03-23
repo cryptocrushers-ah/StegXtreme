@@ -79,7 +79,7 @@ async def tunnel_send(req: TunnelSendRequest):
         active_transmissions.pop(req.session_id, None)
 
 @router.post("/receive")
-async def tunnel_receive(request: Request, user: dict = Depends(get_current_user)):
+async def tunnel_receive(request: Request):
     # This endpoint receives incoming HTTP tunnel requests
     headers = dict(request.headers)
     payload_bytes = HTTPTunnel.receive_from_headers(headers)
