@@ -48,8 +48,8 @@ const TunnelTab: React.FC = () => {
 
     const handleSend = async () => {
     if (!target || !payload) return;
-    if (payload.length > 50000) {
-      setError('Payload too large for secure tunneling (Max 50KB).');
+    if (payload.length > 500 * 1024 * 1024) {
+      setError('Payload too large for secure tunneling (Max 500MB).');
       return;
     }
     

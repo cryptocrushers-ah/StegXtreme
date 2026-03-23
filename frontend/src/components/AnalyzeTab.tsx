@@ -360,10 +360,6 @@ export default function AnalyzeTab() {
       setError('Please select a media file to analyse.');
       return;
     }
-    if (file && file.size > 500 * 1024 * 1024) {
-      setError('Analysis limit is 500MB per file.');
-      return;
-    }
     setError('');
     setResult(null);
     setThreatReport(null);
@@ -458,7 +454,7 @@ export default function AnalyzeTab() {
           <div className="drop-prompt">
             <div className="pulse-icon">📂</div>
             <p>Upload any file to <span>check for hidden data</span></p>
-            <span className="hint">PNG, BMP, WAV, MP4, AVI (Max 500MB)</span>
+            <span className="hint">PNG, BMP, WAV, MP4, AVI (Supported)</span>
           </div>
         )}
       </div>

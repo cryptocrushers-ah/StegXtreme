@@ -46,10 +46,7 @@ export default function VisualiseTab() {
       setError(`${mode} mode requires an image file.`);
       return;
     }
-    if (file && file.size > 500 * 1024 * 1024) {
-      setError('Visualisation limit is 500MB per file.');
-      return;
-    }
+
 
     setError('');
     setImageSrc(null);
@@ -111,7 +108,7 @@ export default function VisualiseTab() {
           <div className="drop-prompt">
             <div className="pulse-icon">🎞️</div>
             <p>Upload media to see <span>advanced signal analysis</span></p>
-            <span className="hint">Images & Videos supported (Max 500MB)</span>
+            <span className="hint">Images & Videos supported</span>
           </div>
         )}
       </div>
