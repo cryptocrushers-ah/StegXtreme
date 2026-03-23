@@ -1,21 +1,23 @@
-import cv2
-import numpy as np
-import os
-from core.visualiser.bitplane import render_bitplanes
+import torch
+print('CUDA available:', torch.cuda.is_available())
+print('GPU:', torch.cuda.get_device_name(0))
 
-# Create a dummy image
-img = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
+# test a real training step timing
+import time
+from core.neural.trainer import GANTrainer
 
-# Render bit-planes
-b64 = render_bitplanes(img)
+trainer = GANTrainer()
+cover   = torch.rand(4, 1, 64, 64).cuda()
+payload = torch.rand(4, 1, 64, 64).cuda()
 
-# Print the first 100 chars of the base64 string
-print(b64[:100])
+# warmup
+trainer.train_step(cover, payload)
 
-# Extract base64 part
-header, data = b64.split(',', 1)
-import base64 as b64_mod
-with open("vis_output.png", "wb") as f:
-    f.write(b64_mod.b64decode(data))
-
-print("Saved to vis_output.png")
+# time 10 steps
+start = time.time()
+for _ in range(10):
+    trainer.train_step(cover, payload)
+torch.cuda.synchronize()
+elapsed = (time.time() - start) / 10 * 1000
+print(f'ms per step: {elapsed:.1f}ms')
+print(f'Expected: 20-30ms')

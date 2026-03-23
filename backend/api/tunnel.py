@@ -1,4 +1,5 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request, HTTPException
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request, HTTPException, Depends
+from backend.api.auth import get_current_user
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 import json
@@ -38,7 +39,7 @@ class TunnelSendRequest(BaseModel):
     target: str # IP or URL
     session_id: str
 
-@router.post("/send")
+@router.post("/send", dependencies=[Depends(get_current_user)])
 async def tunnel_send(req: TunnelSendRequest):
     payload_bytes = req.payload.encode('utf-8')
     

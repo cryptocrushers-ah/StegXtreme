@@ -271,3 +271,37 @@
   margin-left: 0.75rem;
   letter-spacing: 0.05em;
 }
+
+/* ── Algorithm context bar (shown when carrier is selected) ── */
+.algo-context-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.1rem;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  border-radius: 10px;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.algo-context-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  letter-spacing: 0.03em;
+}
+
+.algo-context-hint {
+  font-size: 0.75rem;
+  color: #71717a;
+}
+
+.algo-context-hint strong { color: #c4b5fd; }
+
+/* ── Payload file drop — inline hint text ── */
+.payload-prompt small {
+  display: block;
+  color: #52525b;
+  font-size: 0.72rem;
+}

@@ -1,0 +1,93 @@
+/* ── GPU Badge ─────────────────────────────────────────────────────── */
+.gpu-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: border-color 0.2s, background 0.2s;
+  font-size: 0.78rem;
+  font-family: var(--font-main, monospace);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.gpu-badge:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* dot */
+.gpu-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.gpu-dot--green {
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: gpu-pulse 2.4s ease-in-out infinite;
+}
+.gpu-dot--amber {
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+.gpu-dot--red {
+  background: #ef4444;
+}
+
+@keyframes gpu-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+/* label */
+.gpu-label { color: #a1a1aa; }
+.gpu-state {
+  color: #e4e4e7;
+  font-weight: 700;
+  margin-left: 2px;
+}
+.gpu-badge--ok   .gpu-state { color: #4ade80; }
+.gpu-badge--warn .gpu-state { color: #fbbf24; }
+.gpu-badge--error .gpu-state { color: #f87171; }
+
+/* ── Tooltip popup ── */
+.gpu-tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 200px;
+  background: #0f0f14;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  z-index: 999;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.gpu-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+}
+.gpu-tooltip-row span  { color: #71717a; }
+.gpu-tooltip-row strong { color: #e4e4e7; font-weight: 600; }
+
+.gpu-tooltip-note {
+  font-size: 0.72rem;
+  color: #fbbf24;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 0.4rem;
+  margin-top: 0.2rem;
+}

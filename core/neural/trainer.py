@@ -7,6 +7,11 @@ from core.neural.detector import DetectorNetwork
 class GANTrainer:
     def __init__(self, device=None):
         # ── Device Setup ───────────────────────────────────────
+        try:
+            import cupy
+        except Exception:
+            pass
+
         if device is None:
             if torch.cuda.is_available():
                 self.device = torch.device("cuda")
